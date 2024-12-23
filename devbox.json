@@ -29,7 +29,7 @@
     "yq": "3.4.3"
   },
   "env": {
-    "UV_PYTHON": "${DEVBOX_PROJECT_ROOT}/.devbox/.venv/bin/python",
+    "UV_PYTHON": "${DEVBOX_PROJECT_ROOT}/.devbox/virtenv/python/.venv/bin/python",
     "TASK_X_ENV_PRECEDENCE": "1",
     "TASK_X_MAP_VARIABLES":  "0"
   },
