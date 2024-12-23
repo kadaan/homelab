@@ -35,7 +35,7 @@
   "shell": {
     "init_hook": [
       ". $VENV_DIR/bin/activate",
-      "uv pip sync \"${DEVBOX_PROJECT_ROOT}/requirements.txt\"",
+      "UV_PYTHON=$VENV_DIR/bin/python uv pip sync \"${DEVBOX_PROJECT_ROOT}/requirements.txt\"",
       "${DEVBOX_PROJECT_ROOT}/scripts/install-git-hooks.sh"
     ],
     "scripts": {
