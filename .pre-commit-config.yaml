@@ -1,0 +1,55 @@
+---
+exclude: '^.devbox(/.*)?$'
+default_language_version:
+  python: python3.10
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: detect-private-key
+        exclude: "^.+/authelia/app/resources/configuration\\.yaml$"
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.27.1
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/gruntwork-io/pre-commit
+    rev: v0.1.17
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.30.0
+    hooks:
+      - name: check devbox.json schema
+        id: check-jsonschema
+        files: "^devbox\\.json$"
+        args:
+          - "--schemafile"
+          - "https://raw.githubusercontent.com/jetpack-io/devbox/0.10.1/.schema/devbox.schema.json"
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 39.57.2
+    hooks:
+      - id: renovate-config-validator
+  - repo: https://github.com/onedr0p/sops-pre-commit
+    rev: v2.1.0
+    hooks:
+      - id: forbid-secrets
+  - repo: https://github.com/kadaan/check-yamlschema
+    rev: 0.0.1
+    hooks:
+      - name: check yaml schemas
+        id: check-yamlschema
+        files: "^.*\\.yaml$"
+  - repo: local
+    hooks:
+      - id: kubeconform
+        name: kubeconform
+        entry: ./scripts/kubeconform.sh ./kubernetes
+        language: script
+        pass_filenames: false

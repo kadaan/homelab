@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": ["PRs for staging cluster"],
+      "matchFileNames": ["**/kubernetes/staging/**"],
+      "additionalBranchPrefix": "staging-"
+    },
+    {
+      "description": ["PRs for production cluster"],
+      "matchFileNames": ["**/kubernetes/production/**"],
+      "additionalBranchPrefix": "production-"
+    }
+  ]
+}

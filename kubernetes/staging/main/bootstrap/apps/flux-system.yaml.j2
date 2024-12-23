@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flux-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-deploy-key
+  namespace: flux-system
+stringData:
+  username: "#{ get_env('FLUX_GITHUB_REPOSITORY_USERNAME') }#"
+  password: "#{ get_env('FLUX_GITHUB_REPOSITORY_READ_TOKEN') }#"

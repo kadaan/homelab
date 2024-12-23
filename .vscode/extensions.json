@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "signageos.signageos-vscode-sops",
+        "EditorConfig.editorconfig",
+        "PKief.material-icon-theme",
+        "Gruntfuggly.todo-tree",
+        "redhat.vscode-yaml",
+    ]
+}

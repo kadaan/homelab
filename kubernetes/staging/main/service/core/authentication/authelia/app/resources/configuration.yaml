@@ -1,0 +1,122 @@
+server:
+  buffers:
+    read: 8192
+    write: 8192
+  asset_path: /assets
+
+ntp:
+  address: "time.cloudflare.com:123"
+  version: 4
+  max_desync: 3s
+  disable_startup_check: false
+
+totp:
+  issuer: '{{ env "CLOUDFLARE_DOMAIN" }}'
+  period: 30
+  skew: 1
+
+authentication_backend:
+  password_reset:
+    disable: false
+  refresh_interval: 1m
+  ldap:
+    implementation: custom
+    address: ldap://lldap.authentication.svc.cluster.local:3890
+    timeout: 5s
+    start_tls: false
+    base_dn: "${CLUSTER_LDAP_BASE_DN}"
+    additional_users_dn: ou=people
+    users_filter: "(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))"
+    additional_groups_dn: ou=groups
+    groups_filter: "(&(member={dn})(objectClass=groupOfNames))"
+    user: "uid=admin,ou=people,${CLUSTER_LDAP_BASE_DN}"
+    password: '{{ secret "/secrets/LLDAP_ADMIN_PASSWORD" }}'
+    attributes:
+      display_name: givenName
+      username: uid
+      group_name: cn
+      mail: mail
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: '{{ env "CLOUDFLARE_SUBDOMAIN" }}.{{ env "CLOUDFLARE_DOMAIN" }}'
+      policy: bypass
+    - domain:
+        - '*.{{ env "CLOUDFLARE_DOMAIN" }}'
+      policy: two_factor
+
+session:
+  name: authelia_session
+  secret: '{{ secret "/secrets/AUTHELIA_SESSION_SECRET" }}'
+  expiration: 1d
+  inactivity: 8h
+  cookies:
+    - domain: '{{ env "CLOUDFLARE_DOMAIN" }}'
+      authelia_url: 'https://{{ env "CLOUDFLARE_SUBDOMAIN" }}.{{ env "CLOUDFLARE_DOMAIN" }}'
+
+identity_validation:
+  reset_password:
+    jwt_lifespan: "5 minutes"
+    jwt_algorithm: "HS256"
+    jwt_secret: '{{ secret "/secrets/AUTHELIA_RESET_PASSWORD_JWT_SECRET" }}'
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 10m
+
+storage:
+  encryption_key: '{{ secret "/secrets/AUTHELIA_STORAGE_ENCRYPTION_KEY" }}'
+  local:
+    path: /data/db.sqlite3
+
+notifier:
+  smtp:
+    address: 'submission://smtp.mailgun.org:587'
+    username: '{{ env "MAILGUN_SMTP_USERNAME" }}'
+    password: '{{ secret "/secrets/MAILGUN_SMTP_PASSWORD" }}'
+    sender: '{{ env "CLUSTER_DISPLAY_NAME" }} <noreply@{{ env "CLOUDFLARE_DOMAIN" }}>'
+    subject: '{{ env "CLUSTER_DISPLAY_NAME" }}: {title}'
+
+identity_providers:
+  oidc:
+    hmac_secret: '{{ secret "/secrets/AUTHELIA_OIDC_HMAC_SECRET" }}'
+    jwks:
+      - key_id: 'default'
+        algorithm: 'RS256'
+        use: 'sig'
+        key: |
+          -----BEGIN RSA PRIVATE KEY-----
+          {{ secret "/secrets/AUTHELIA_OIDC_JWKS_KEY" }}
+          -----END RSA PRIVATE KEY-----
+    lifespans.access_token: 1h
+    lifespans.authorize_code: 1m
+    lifespans.id_token: 1h
+    lifespans.refresh_token: 90m
+    enable_client_debug_messages: false
+    enforce_pkce: public_clients_only
+    cors:
+      endpoints:
+        - authorization
+        - token
+        - revocation
+        - introspection
+      allowed_origins:
+        - "*"
+      allowed_origins_from_client_redirect_uris: false
+    clients:
+      - client_id: '{{ secret "/secrets/AUTHELIA_OIDC_CLOUDFLARE_CLIENT_ID" }}'
+        client_name: Cloudflare ZeroTrust
+        client_secret: '{{ secret "/secrets/AUTHELIA_OIDC_CLOUDFLARE_CLIENT_SECRET_DIGEST" }}'
+        public: false
+        authorization_policy: two_factor
+        pre_configured_consent_duration: 365d
+        redirect_uris:
+          - 'https://{{ env "CLOUDFLARE_TEAM" }}.cloudflareaccess.com/cdn-cgi/access/callback'
+        scopes:
+          - openid
+          - profile
+          - email
+          - groups
+        userinfo_signed_response_alg: none

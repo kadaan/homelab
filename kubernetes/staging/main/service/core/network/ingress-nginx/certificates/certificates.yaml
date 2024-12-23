@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "${CLOUDFLARE_DOMAIN/./-}"
+spec:
+  secretName: "${CLOUDFLARE_DOMAIN/./-}-tls"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "${CLOUDFLARE_DOMAIN}"
+  dnsNames:
+    - "${CLOUDFLARE_DOMAIN}"
+    - "*.${CLOUDFLARE_DOMAIN}"

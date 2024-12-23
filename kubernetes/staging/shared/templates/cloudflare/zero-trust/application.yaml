@@ -1,0 +1,26 @@
+apiVersion: cloudflare.kadaan.info/v1alpha1
+kind: CloudflareAccessApplication
+metadata:
+  name: "${APP}"
+  annotations:
+    cloudflare.kadaan.info/prevent-destroy: "false"
+spec:
+  name: "${APP}"
+  domain: "${CLOUDFLARE_SUBDOMAIN:-${APP}}.${CLOUDFLARE_DOMAIN}"
+  allowedIdps:
+    - "8ec0e49d-47a3-474d-83bd-256b2cb379af"
+  autoRedirectToIdentity: true
+  appLauncherVisible: true
+  type: self_hosted
+  sessionDuration: 24h
+  enableBindingCookie: false
+  httpOnlyCookieAttribute: true
+  logoUrl: "${CLOUDFLARE_ZEROTRUST_APPLICATION_LOGO:-https://www.cloudflare.com/img/logo-web-badges/cf-logo-on-white-bg.svg}"
+  policies:
+    - name: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME:-oidc-user}"
+      decision: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_DECISION:-allow}"
+      include:
+        - accessGroups:
+            - valueFrom:
+                name: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME:-oidc-user}"
+                namespace: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NETWORK:-network}"

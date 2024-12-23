@@ -1,0 +1,138 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app lldap
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      lldap:
+        strategy: RollingUpdate
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: &repository ghcr.io/lldap/lldap
+              tag: &tag v0.6.1-alpine-rootless@sha256:7e1c16090167c49d34e9e98f9f7d3fce97d3d86de8d2f62eedefad3dca3d270b
+            env:
+              LLDAP_LDAP_PORT: &ldap_port 3890
+              LLDAP_HTTP_PORT: &http_port "${LLDAP_HTTP_PORT}"
+              LLDAP_LDAP_BASE_DN: "${CLUSTER_LDAP_BASE_DN}"
+              LLDAP_DATABASE_URL: sqlite:///data/users.db?mode=rwc
+              TZ: "${CLUSTER_TZ}"
+              UID: 1000
+              GID: 1000
+              # LLDAP_LDAP_USER_DN: admin
+              # LLDAP_LDAP_USER_EMAIL: "noreply@${CLOUDFLARE_DOMAIN}"
+            envFrom:
+              - secretRef:
+                  name: lldap-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *http_port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+      lldap-bootstrap:
+        type: job
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        job:
+          completions: 1
+          ttlSecondsAfterFinished: 300
+        containers:
+          app:
+            image:
+              repository: *repository
+              tag: *tag
+            command: ["./bootstrap.sh"]
+            env:
+              LLDAP_URL: "http://lldap.authentication.svc.cluster.local:${LLDAP_HTTP_PORT}"
+              LLDAP_ADMIN_USERNAME: "admin"
+              DO_CLEANUP: "true"
+            envFrom:
+              - secretRef:
+                  name: lldap-bootstrap-secret
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: { type: RuntimeDefault }
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *http_port
+          ldap:
+            enabled: true
+            port: *ldap_port
+            protocol: TCP
+    persistence:
+      data:
+        existingClaim: lldap-data
+        advancedMounts:
+          lldap:
+            app:
+              - path: /data
+      bootstrap-users:
+        type: secret
+        name: lldap-bootstrap-users-secret
+        advancedMounts:
+          lldap-bootstrap:
+            app:
+              - path: /bootstrap/user-configs
+                readOnly: true
+      bootstrap-groups:
+        type: secret
+        name: lldap-bootstrap-groups-secret
+        advancedMounts:
+          lldap-bootstrap:
+            app:
+              - path: /bootstrap/group-configs
+                readOnly: true

@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-settings
+  namespace: flux-system
+data:
+  CLOUDFLARE_ACME_EMAIL: "help@kadaan.info"
+  CLOUDFLARE_DOMAIN: "kadaan.info"
+  CLOUDFLARE_TUNNEL_ID: "70747417-5d4d-4dfe-9c86-447eccf65a23"
+  CLUSTER_DISPLAY_NAME: "Ellis Creek Farm (STAGING)"
+  CLUSTER_LDAP_BASE_DN: "dc=kadaan,dc=info"
+  CLUSTER_TZ: America/Los_Angeles

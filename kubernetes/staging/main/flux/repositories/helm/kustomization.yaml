@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/refs/heads/main/kustomization-kustomize-v1beta2.json
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./bjw-s.yaml
+  - ./cilium.yaml
+  - ./coredns.yaml
+  - ./external-dns.yaml
+  - ./external-secrets.yaml
+  - ./headlamp.yaml
+  - ./ingress-nginx.yaml
+  - ./jetstack.yaml
+  - ./k8s-gateway.yaml
+  - ./metrics-server.yaml
+  - ./openebs.yaml
+  - ./postfinance.yaml
+  - ./prometheus-community.yaml
+  - ./spegel.yaml
+  - ./stakater.yaml

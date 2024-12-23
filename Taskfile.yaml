@@ -1,0 +1,98 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+set: [pipefail]
+shopt: [globstar]
+
+vars:
+  BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
+  KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
+  SCRIPTS_DIR: '{{.ROOT_DIR}}/scripts'
+  MAKEJINJA_SETTINGS: '{{.ROOT_DIR}}/makejinja.toml'
+
+env:
+  MAKEJINJA_SETTINGS: '{{.MAKEJINJA_SETTINGS}}'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+includes:
+  common: .taskfiles/common
+  bootstrap: .taskfiles/bootstrap
+  kubernetes: .taskfiles/kubernetes
+  talos: .taskfiles/talos
+  user:
+    taskfile: .taskfiles/User
+    optional: true
+
+tasks:
+
+  default: task --list
+
+  k9s:
+    desc: K9s is a CLI to view and manage your Kubernetes clusters
+    silent: true
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - KUBECONFIG='{{.TEMP_DIR}}/kubeconfig' k9s {{.CLI_ARGS}}
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TEMP_DIR:
+        sh: mktemp -d
+    requires:
+      vars:
+        - CLUSTER
+    interactive: true
+
+  kubectl:
+    desc: kubectl controls the Kubernetes cluster manager
+    silent: true
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - KUBECONFIG='{{.TEMP_DIR}}/kubeconfig' kubectl {{.CLI_ARGS}}
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TEMP_DIR:
+        sh: mktemp -d
+    requires:
+      vars:
+        - CLUSTER
+
+  flux-local:
+    desc: Command line utility for inspecting a local flux repository
+    silent: true
+    cmds:
+      - flux-local {{.CLI_ARGS}} --path '{{ .CLUSTER_ROOT }}/main/flux'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    requires:
+      vars:
+        - CLUSTER
+
+  flux:
+    desc: Command line utility for assembling Kubernetes CD pipelines the GitOps way
+    silent: true
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - KUBECONFIG='{{.TEMP_DIR}}/kubeconfig' flux {{.CLI_ARGS}}
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TEMP_DIR:
+        sh: mktemp -d
+    requires:
+      vars:
+        - CLUSTER

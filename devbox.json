@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetpack-io/devbox/0.10.1/.schema/devbox.schema.json",
+  "packages": {
+    "age": "1.2.0",
+    "cloudflared": "2024.11.0",
+    "fluxcd": "2.4.0",
+    "github:budimanjojo/talhelper/v3.0.10": "",
+    "go-task": "3.40.0",
+    "helmfile": "0.169.1",
+    "jq": "1.7.1",
+    "k9s": "0.32.6",
+    "kubeconform": "0.6.7",
+    "kubectl": "1.31.2",
+    "kubernetes-helm": "3.16.3",
+    "kustomize": "5.5.0",
+    "makejinja": "2.6.2",
+    "moreutils": "0.69",
+    "nodejs": "23.2.0",
+    "pre-commit": "4.0.1",
+    "python": "3.10.16",
+    "python310Packages.dnspython": "2.4.2",
+    "python310Packages.email-validator": "2.0.0",
+    "python310Packages.netaddr": "0.8.0",
+    "python310Packages.ntplib": "0.4.0",
+    "shellcheck": "0.10.0",
+    "stern": "1.31.0",
+    "talosctl": "1.8.3",
+    "uv": "0.4.30",
+    "yq": "3.4.3"
+  },
+  "env": {
+    "TASK_X_ENV_PRECEDENCE": "1",
+    "TASK_X_MAP_VARIABLES":  "0"
+  },
+  "shell": {
+    "init_hook": [
+      ". $VENV_DIR/bin/activate",
+      "uv pip sync \"${DEVBOX_PROJECT_ROOT}/requirements.txt\"",
+      "${DEVBOX_PROJECT_ROOT}/scripts/install-git-hooks.sh"
+    ],
+    "scripts": {
+      "install-git-hooks": [
+        "${DEVBOX_PROJECT_ROOT}/scripts/install-git-hooks.sh"
+      ],
+      "pre-commit": [
+        "${DEVBOX_PROJECT_ROOT}/scripts/pre-commit.sh \"$@\""
+      ],
+      "update_python_dependencies": [
+        "uv pip compile requirements.in -o requirements.txt",
+        "deactivate"
+      ]
+    }
+  }
+}

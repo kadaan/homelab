@@ -1,0 +1,243 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
+
+includes:
+  common: ../common
+
+tasks:
+
+  talos:
+    desc: Bootstrap Talos [CLUSTER=required]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:talosctl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: talos_bootstrap
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TALOS_CFG: '{{.TALOS_CFG}}'
+          TALOS_SECRETS: '{{.TALOS_SECRETS}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  talos_bootstrap:
+    internal: true
+    dir: '{{.CLUSTER_ROOT}}'
+    dotenv:
+      - '{{.TALOS_SECRETS}}'
+    cmds:
+      - talhelper gencommand apply --config-file '{{.TALOS_CFG}}' --out-dir '{{.TEMP_DIR}}' --extra-flags '--insecure' | bash
+      - until talhelper gencommand bootstrap --config-file '{{.TALOS_CFG}}' --out-dir '{{.TEMP_DIR}}' | bash; do sleep 10; done
+      - until talhelper gencommand kubeconfig --config-file '{{.TALOS_CFG}}' --out-dir '{{.TEMP_DIR}}' --extra-flags '{{.TEMP_DIR}} --force' | bash; do sleep 10; done
+      - task: apps_bootstrap
+        vars:
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          CLUSTER: '{{.CLUSTER}}'
+          TALOS_SECRETS: '{{.TALOS_SECRETS}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - talosctl health --server=false --talosconfig '{{.TEMP_DIR}}/talosconfig'
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_ROOT
+        - TALOS_CFG
+        - TALOS_SECRETS
+        - TEMP_DIR
+    preconditions:
+      - which talhelper talosctl
+
+  apps:
+    desc: Bootstrap Apps [CLUSTER=required]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: apps_bootstrap
+        vars:
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          CLUSTER: '{{.CLUSTER}}'
+          TALOS_SECRETS: '{{.TALOS_SECRETS}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - which op
+
+  apps_bootstrap:
+    internal: true
+    dir: '{{.CLUSTER_ROOT}}'
+    dotenv:
+      - '{{.TALOS_SECRETS}}'
+    env:
+      KUBECONFIG: '{{.TEMP_DIR}}/kubeconfig'
+    cmds:
+      - until kubectl wait nodes --for=condition=Ready=False --all --timeout=10m; do sleep 5; done
+      - helmfile --file './main/bootstrap/apps/helmfile.yaml' apply --skip-diff-on-install --suppress-diff
+      - until kubectl wait nodes --for=condition=Ready --all --timeout=10m; do sleep 5; done
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_ROOT
+        - TEMP_DIR
+        - TALOS_SECRETS
+    preconditions:
+      - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --context '{{.CLUSTER}}'
+      - test -f '{{.TEMP_DIR}}/kubeconfig'
+      - test -f {{.CLUSTER_ROOT}}/main/bootstrap/apps/helmfile.yaml
+      - which helmfile kubectl
+
+  flux:
+    desc: Bootstrap Flux [CLUSTER=required]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - op inject --in-file=./main/bootstrap/bootstrap.env --out-file='{{.BOOTSTRAP_SECRETS}}' > /dev/null
+      - task: flux_bootstrap
+        vars:
+          BOOTSTRAP_SECRETS: '{{.BOOTSTRAP_SECRETS}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TEMP_DIR:
+        sh: mktemp -d
+      BOOTSTRAP_SECRETS: '{{.TEMP_DIR}}/.bootstrap_secrets'
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -f ./main/bootstrap/bootstrap.env
+      - which op
+
+  flux_bootstrap:
+    internal: true
+    dir: '{{.CLUSTER_ROOT}}'
+    dotenv:
+      - '{{.BOOTSTRAP_SECRETS}}'
+    cmds:
+      - kubectl apply --server-side --kustomize './main/bootstrap/apps' --force-conflicts
+      - for: { var: TEMPLATES }
+        cmd: makejinja --input '{{.ITEM}}' --output /dev/stdout | kubectl apply --server-side --filename -
+      - kubectl apply --server-side --kustomize './main/flux/config' --force-conflicts
+    vars:
+      TEMPLATES:
+        sh: ls {{.CLUSTER_ROOT}}/main/bootstrap/apps/*.j2
+    env:
+      KUBECONFIG: '{{.TEMP_DIR}}/kubeconfig'
+    requires:
+      vars:
+        - BOOTSTRAP_SECRETS
+        - CLUSTER_ROOT
+        - TEMP_DIR
+    preconditions:
+      - which curl flux kubectl ls op
+      - test -f '{{.TEMP_DIR}}/kubeconfig'
+      - test -d './main/bootstrap/apps'
+      - op user get --me
+
+  template:
+    internal: true
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - mkdir '{{.TEMP_CLUSTER_DIR}}'
+      - makejinja --data '{{.ROOT_DIR}}/bootstrap/config/{{.CLUSTER}}/config.yaml' --input '{{.ROOT_DIR}}/bootstrap/overrides' --input '{{.ROOT_DIR}}/bootstrap/templates/kubernetes' --output '{{.TEMP_CLUSTER_DIR}}'
+      - bash '{{.KUBECONFORM_SCRIPT}}' '{{.TEMP_DIR}}' '{{.CLUSTER}}'
+      - rm -rf '{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}'
+      - mv '{{.TEMP_CLUSTER_DIR}}' '{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}'
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      TEMP_DIR:
+        sh: mktemp -d
+      TEMP_CLUSTER_DIR: '{{.TEMP_DIR}}/{{.CLUSTER}}'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - which makejinja kubeconform
+      - test -f '{{.KUBECONFORM_SCRIPT}}'
+      - test -d '{{.ROOT_DIR}}/bootstrap/templates/kubernetes'
+      - test -d '{{.ROOT_DIR}}/bootstrap/overrides'
+      - test -f '{{.ROOT_DIR}}/bootstrap/config/{{.CLUSTER}}/config.yaml'
+      - test -f '{{.BOOTSTRAP_DIR}}/scripts/plugin.py'
+
+  onepassword-connect-credentials:
+    desc: Bootstrap the 1Password Connect credentials
+    deps:
+      - task: onepassword-connect-server-create
+        vars:
+          ONEPASSWORD_CONNECT_CREDENTIALS_FILE: "{{.ONEPASSWORD_CONNECT_CREDENTIALS_FILE}}"
+          ONEPASSWORD_CREDENTIALS_FILE: "{{.ONEPASSWORD_CREDENTIALS_FILE}}"
+    cmds:
+      - 'jq -n "{credentials: \$ARGS.named}" --arg json "$(cat {{.ONEPASSWORD_CREDENTIALS_FILE}})" --arg token "$(op connect token create Kubernetes --server ''{{.SERVER_NAME}}'' --vaults ''{{.VAULT}},r'')" > {{.ONEPASSWORD_CONNECT_CREDENTIALS_FILE}}'
+      - chmod 600 '{{.ONEPASSWORD_CONNECT_CREDENTIALS_FILE}}'
+      - rm -f '{{.ONEPASSWORD_CREDENTIALS_FILE}}'
+    vars:
+      ONEPASSWORD_CONNECT_CREDENTIALS_FILE: '{{.DEVBOX_PROJECT_ROOT}}/1password-connect-credentials.json'
+      ONEPASSWORD_CREDENTIALS_FILE: '{{.DEVBOX_PROJECT_ROOT}}/1password-credentials.json'
+    status:
+      - test -f '{{.ONEPASSWORD_CONNECT_CREDENTIALS_FILE}}'
+    requires:
+      vars:
+        - SERVER_NAME
+        - VAULT
+    preconditions:
+      - which op jq
+
+  onepassword-connect-server-create:
+    internal: true
+    cmds:
+      - op connect server create '{{.SERVER_NAME}}' --vaults '{{.VAULT}}'
+      - chmod 600 '{{.ONEPASSWORD_CREDENTIALS_FILE}}'
+    status:
+      - test -f '{{.ONEPASSWORD_CONNECT_CREDENTIALS_FILE}}'
+    requires:
+      vars:
+        - SERVER_NAME
+        - VAULT
+    preconditions:
+      - which op jq

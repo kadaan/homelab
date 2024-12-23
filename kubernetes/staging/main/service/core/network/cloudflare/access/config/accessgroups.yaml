@@ -1,0 +1,50 @@
+---
+apiVersion: cloudflare.kadaan.info/v1alpha1
+kind: CloudflareAccessGroup
+metadata:
+  name: oidc-user
+spec:
+  name: OidcUser
+  include:
+    - emailDomains:
+      - "kadaan.info"
+  require:
+    - country:
+      - US
+    - oidcClaims:
+      - name: groups
+        value: user
+        identityProviderId: "8ec0e49d-47a3-474d-83bd-256b2cb379af"
+    - loginMethod:
+      - "8ec0e49d-47a3-474d-83bd-256b2cb379af"
+---
+apiVersion: cloudflare.kadaan.info/v1alpha1
+kind: CloudflareAccessGroup
+metadata:
+  name: oidc-admin
+spec:
+  name: OidcAdmin
+  include:
+    - emailDomains:
+      - "kadaan.info"
+  require:
+    - country:
+      - US
+    - oidcClaims:
+      - name: groups
+        value: admin
+        identityProviderId: "8ec0e49d-47a3-474d-83bd-256b2cb379af"
+    - loginMethod:
+      - "8ec0e49d-47a3-474d-83bd-256b2cb379af"
+---
+apiVersion: cloudflare.kadaan.info/v1alpha1
+kind: CloudflareAccessGroup
+metadata:
+  name: authelia
+spec:
+  name: Authelia
+  include:
+    - everyone: true
+  require:
+    - country:
+      - US
