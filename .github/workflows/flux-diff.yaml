@@ -20,7 +20,7 @@ jobs:
       pull-requests: write
     strategy:
       matrix:
-        paths: ["kubernetes/staging", "kubernetes/production"]
+        paths: ["kubernetes/staging"]
         resources: ["helmrelease", "kustomization"]
     steps:
       - name: Checkout
