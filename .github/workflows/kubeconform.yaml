@@ -22,6 +22,7 @@ jobs:
         uses: jetify-com/devbox-install-action@v0.11.0
         with:
           enable-cache: 'true'
+          project-path: ./scripts/kubernetes
 
       - name: Run kubeconform
         run: ./scripts/kubernetes/kubeconform.sh ${{ env.KUBERNETES_DIR }}
