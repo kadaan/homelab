@@ -50,6 +50,6 @@ repos:
     hooks:
       - id: kubeconform
         name: kubeconform
-        entry: ./scripts/kubeconform.sh ./kubernetes
+        entry: ./scripts/kubernetes/kubeconform.sh ./kubernetes
         language: script
         pass_filenames: false

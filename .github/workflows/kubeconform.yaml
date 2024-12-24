@@ -24,4 +24,4 @@ jobs:
           enable-cache: 'true'
 
       - name: Run kubeconform
-        run: devbox run -- ./scripts/kubeconform.sh ${{ env.KUBERNETES_DIR }}
+        run: ./scripts/kubernetes/kubeconform.sh ${{ env.KUBERNETES_DIR }}

@@ -1,7 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetpack-io/devbox/0.10.1/.schema/devbox.schema.json",
   "packages": {
-    "age": "1.2.0",
     "cloudflared": "2024.11.0",
     "fluxcd": "2.4.0",
     "github:budimanjojo/talhelper/v3.0.10": "",

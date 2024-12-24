@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
+  KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubernetes/kubeconform.sh"
 
 includes:
   common: ../common
