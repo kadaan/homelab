@@ -1,5 +1,5 @@
 ---
-apiVersion: cloudflare.kadaan.info/v1alpha1
+apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareAccessGroup
 metadata:
   name: oidc-user
@@ -18,7 +18,7 @@ spec:
     - loginMethod:
       - "8ec0e49d-47a3-474d-83bd-256b2cb379af"
 ---
-apiVersion: cloudflare.kadaan.info/v1alpha1
+apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareAccessGroup
 metadata:
   name: oidc-admin
@@ -37,7 +37,7 @@ spec:
     - loginMethod:
       - "8ec0e49d-47a3-474d-83bd-256b2cb379af"
 ---
-apiVersion: cloudflare.kadaan.info/v1alpha1
+apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareAccessGroup
 metadata:
   name: authelia

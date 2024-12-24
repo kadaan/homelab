@@ -1,9 +1,9 @@
-apiVersion: cloudflare.kadaan.info/v1alpha1
+apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareAccessApplication
 metadata:
   name: "${APP}"
   annotations:
-    cloudflare.kadaan.info/prevent-destroy: "false"
+    cloudflare.zelic.io/prevent-destroy: "false"
 spec:
   name: "${APP}"
   domain: "${CLOUDFLARE_SUBDOMAIN:-${APP}}.${CLOUDFLARE_DOMAIN}"
