@@ -3,36 +3,6 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: cloudflare-zero-trust2
-spec:
-  interval: 30m
-  chart:
-    spec:
-      chart: ./helm/cloudflare-zero-trust-operator
-      sourceRef:
-        kind: GitRepository
-        name: cloudflare-zero-trust-operator2
-        namespace: flux-system
-  install:
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  values:
-    image:
-      tag: 0.4.1
-    secretRef: cloudflare-access-secret
-    podAnnotations:
-      reloader.stakater.com/auto: "true"
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
-metadata:
   name: cloudflare-zero-trust
 spec:
   interval: 30m
