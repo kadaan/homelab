@@ -2,7 +2,7 @@
 #    uv pip compile requirements.in -o requirements.txt
 aiofiles==24.1.0
     # via flux-local
-flux-local==6.0.2
+flux-local==6.1.0
     # via -r requirements.in
 gitdb==4.0.11
     # via gitpython
