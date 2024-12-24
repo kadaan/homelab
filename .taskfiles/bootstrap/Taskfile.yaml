@@ -179,32 +179,6 @@ tasks:
       - test -d './main/bootstrap/apps'
       - op user get --me
 
-  template:
-    internal: true
-    cmds:
-      - defer: rm -rf '{{.TEMP_DIR}}'
-      - mkdir '{{.TEMP_CLUSTER_DIR}}'
-      - makejinja --data '{{.ROOT_DIR}}/bootstrap/config/{{.CLUSTER}}/config.yaml' --input '{{.ROOT_DIR}}/bootstrap/overrides' --input '{{.ROOT_DIR}}/bootstrap/templates/kubernetes' --output '{{.TEMP_CLUSTER_DIR}}'
-      - bash '{{.KUBECONFORM_SCRIPT}}' '{{.TEMP_DIR}}' '{{.CLUSTER}}'
-      - rm -rf '{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}'
-      - mv '{{.TEMP_CLUSTER_DIR}}' '{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}'
-    env:
-      VAULT: 'kubernetes - {{.CLUSTER}}'
-    vars:
-      TEMP_DIR:
-        sh: mktemp -d
-      TEMP_CLUSTER_DIR: '{{.TEMP_DIR}}/{{.CLUSTER}}'
-    requires:
-      vars:
-        - CLUSTER
-    preconditions:
-      - which makejinja kubeconform
-      - test -f '{{.KUBECONFORM_SCRIPT}}'
-      - test -d '{{.ROOT_DIR}}/bootstrap/templates/kubernetes'
-      - test -d '{{.ROOT_DIR}}/bootstrap/overrides'
-      - test -f '{{.ROOT_DIR}}/bootstrap/config/{{.CLUSTER}}/config.yaml'
-      - test -f '{{.BOOTSTRAP_DIR}}/scripts/plugin.py'
-
   onepassword-connect-credentials:
     desc: Bootstrap the 1Password Connect credentials
     deps:

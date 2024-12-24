@@ -30,7 +30,7 @@ tasks:
         - CLUSTER_ROOT
         - TEMP_DIR
     preconditions:
-      - test -d '{{ .ROOT_DIR }}/bootstrap/config/{{ .CLUSTER }}'
+      - test -d '{{ .ROOT_DIR }}/kubernetes/{{ .CLUSTER }}'
 
   talos_genconfig:
     internal: true
@@ -53,7 +53,7 @@ tasks:
         - TEMP_DIR
     preconditions:
       - which talhelper
-      - test -d '{{ .ROOT_DIR }}/bootstrap/config/{{ .CLUSTER }}'
+      - test -d '{{ .ROOT_DIR }}/kubernetes/{{ .CLUSTER }}'
 
   kubectl_init:
     internal: true
@@ -79,4 +79,4 @@ tasks:
         - TEMP_DIR
     preconditions:
       - which talhelper
-      - test -d '{{ .ROOT_DIR }}/bootstrap/config/{{ .CLUSTER }}'
+      - test -d '{{ .ROOT_DIR }}/kubernetes/{{ .CLUSTER }}'
