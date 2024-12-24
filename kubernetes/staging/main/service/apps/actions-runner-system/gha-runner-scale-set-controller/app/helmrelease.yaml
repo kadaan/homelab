@@ -27,3 +27,5 @@ spec:
   values:
     fullnameOverride: gha-runner-scale-set-controller
     replicaCount: 1
+    flags:
+      logLevel: "debug"
