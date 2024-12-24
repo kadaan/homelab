@@ -6,7 +6,7 @@
       "matchDatasources": ["docker"],
       "automerge": true,
       "automergeType": "branch",
-      "matchFileNames": ["**/kubernetes/staging/**"],
+      "matchFileNames": ["kubernetes/staging/**"],
       "matchUpdateTypes": ["digest"],
       "matchPackagePatterns": ["ghcr.io/bjw-s", "ghcr.io/kadaan"]
     },
@@ -16,7 +16,7 @@
       "matchDatasources": ["github-tags"],
       "automerge": true,
       "automergeType": "branch",
-      "matchFileNames": ["**/kubernetes/staging/**"],
+      "matchFileNames": ["kubernetes/staging/**"],
       "matchUpdateTypes": ["minor", "patch"]
     }
   ]
