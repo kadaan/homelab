@@ -8,8 +8,7 @@
       "automergeType": "branch",
       "matchFileNames": ["**/kubernetes/staging/**"],
       "matchUpdateTypes": ["digest"],
-      "matchPackagePatterns": ["ghcr.io/bjw-s", "ghcr.io/kadaan"],
-
+      "matchPackagePatterns": ["ghcr.io/bjw-s", "ghcr.io/kadaan"]
     },
     {
       "description": ["Auto-merge GitHub Actions for minor and patch"],
