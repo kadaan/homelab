@@ -7,6 +7,66 @@ includes:
 
 tasks:
 
+  apply-cluster:
+    desc: Apply Talos config across the whole cluster [CLUSTER=required] [MODE=default]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: apply-cluster-internal
+        vars:
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+          MODE: "{{.MODE}}"
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+      MODE: '{{.MODE | default "auto"}}'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  apply-cluster-internal:
+    internal: true
+    cmds:
+      - for: { var: IP_ADDRS }
+        task: apply-node-internal
+        vars:
+          IP: "{{.ITEM}}"
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+          MODE: "{{.MODE}}"
+    vars:
+      IP_ADDRS:
+        sh: talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --output json | jq --join-output '[.nodes[]] | join(" ")'
+    requires:
+      vars:
+        - CLUSTER_ROOT
+        - TALOS_CFG
+        - TALOS_SECRETS
+        - TEMP_DIR
+        - MODE
+    preconditions:
+      - which jq talosctl
+
   apply-node:
     desc: Apply Talos config to a node [CLUSTER=required] [IP=required]
     dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
@@ -72,6 +132,62 @@ tasks:
       - which talhelper talosctl
       - test -f "{{.TALOS_CFG}}"
       - talosctl --nodes {{.IP}} get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
+
+  upgrade-cluster:
+    desc: Upgrade Talos across the whole cluster [CLUSTER=main]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: upgrade-cluster-internal
+        vars:
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  upgrade-cluster-internal:
+    internal: true
+    cmds:
+      - for: { var: IP_ADDRS }
+        task: upgrade-node-internal
+        vars:
+          IP: "{{.ITEM}}"
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    vars:
+      IP_ADDRS:
+        sh: talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --output json | jq --join-output '[.nodes[]] | join(" ")'
+    requires:
+      vars:
+        - CLUSTER_ROOT
+        - TALOS_CFG
+        - TALOS_SECRETS
+        - TEMP_DIR
+    preconditions:
+      - which jq talosctl
 
   upgrade-node:
     desc: Upgrade Talos on a single node [CLUSTER=required] [IP=required]
@@ -215,6 +331,62 @@ tasks:
       - talosctl --nodes {{.TALOS_CONTROLLER}} get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
       - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
 
+  reboot-cluster:
+    desc: Reboot Talos nodes across the whole cluster [CLUSTER=requied]
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:kubectl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: reboot-cluster-internal
+        vars:
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  reboot-cluster-internal:
+    internal: true
+    cmds:
+      - for: { var: IP_ADDRS }
+        task: reboot-node-internal
+        vars:
+          IP: "{{.ITEM}}"
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    vars:
+      IP_ADDRS:
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(" ")'
+    requires:
+      vars:
+        - CLUSTER_ROOT
+        - TALOS_CFG
+        - TALOS_SECRETS
+        - TEMP_DIR
+    preconditions:
+      - which jq talosctl
+
   reboot-node:
     desc: Reboot Talos on a single node [CLUSTER=required] [IP=required] [MODE=default]
     dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
@@ -278,19 +450,109 @@ tasks:
       - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
 
   shutdown-cluster:
-    desc: Shutdown Talos across the whole cluster [CLUSTER=main]
+    desc: Shutdown Talos across the whole cluster [CLUSTER=required]
     prompt: Shutdown the Talos cluster '{{.CLUSTER}}' ... continue?
-    cmd: talosctl shutdown --nodes {{.IP_ADDRS}} --force
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:talosctl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: shutdown-cluster-internal
+        vars:
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  shutdown-cluster-internal:
+    internal: true
+    dir: '{{.CLUSTER_ROOT}}'
+    dotenv:
+      - '{{.TALOS_SECRETS}}'
+    cmds:
+      - talosctl shutdown --nodes '{{.IP_ADDRS}}' --talosconfig '{{.TEMP_DIR}}/talosconfig' --force
     vars:
       IP_ADDRS:
-        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
+        sh: talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --output json | jq --join-output '[.nodes[]] | join(",")'
     requires:
-      vars: [CLUSTER]
+      vars:
+        - CLUSTER_ROOT
+        - TALOS_SECRETS
+        - TEMP_DIR
     preconditions:
-      - talosctl --nodes {{.NODES}} get machineconfig
-      - talosctl config info
-      - test -f {{.CLUSTER_DIR}}/talosconfig
       - which jq talosctl
+      - talosctl --nodes '{{.IP_ADDRS}}' get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
+      - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
+
+  reset-cluster:
+    desc: Reset Talos across the whole cluster [CLUSTER=required]
+    prompt: Reset the Talos cluster '{{.CLUSTER}}' ... continue?
+    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+    cmds:
+      - defer: rm -rf '{{.TEMP_DIR}}'
+      - task: common:talosctl_init
+        vars:
+          CLUSTER: '{{.CLUSTER}}'
+          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
+          TEMP_DIR: '{{.TEMP_DIR}}'
+      - task: reset-cluster-internal
+        vars:
+          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
+          TALOS_CFG: "{{.TALOS_CFG}}"
+          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
+          TEMP_DIR: "{{.TEMP_DIR}}"
+    env:
+      VAULT: 'kubernetes - {{.CLUSTER}}'
+    vars:
+      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      TALOS_DIR: './main/talos'
+      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
+      TEMP_DIR:
+        sh: mktemp -d
+      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
+    requires:
+      vars:
+        - CLUSTER
+    preconditions:
+      - test -f ./main/talos/talos.env
+      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
+      - which op
+
+  reset-cluster-internal:
+    internal: true
+    dir: '{{.CLUSTER_ROOT}}'
+    dotenv:
+      - '{{.TALOS_SECRETS}}'
+    cmd: talhelper gencommand reset --config-file '{{.TALOS_CFG}}' --out-dir '{{.TEMP_DIR}}' --extra-flags='--graceful=false' | bash
+    requires:
+      vars:
+        - CLUSTER_ROOT
+        - TALOS_SECRETS
+        - TALOS_CFG
+        - TEMP_DIR
+    preconditions:
+      - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
+      - test -f {{.TEMP_DIR}}/talosconfig
+      - which talosctl talhelper
 
   reset-node:
     desc: Reset Talos on a single node [CLUSTER=required] [IP=required]
@@ -341,229 +603,6 @@ tasks:
       - which talosctl
       - talosctl --nodes {{.IP}} get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
       - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
-
-  reset-cluster:
-    desc: Reset Talos across the whole cluster [CLUSTER=required]
-    prompt: Reset the Talos cluster '{{.CLUSTER}}' ... continue?
-    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-    cmds:
-      - defer: rm -rf '{{.TEMP_DIR}}'
-      - task: common:talosctl_init
-        vars:
-          CLUSTER: '{{.CLUSTER}}'
-          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
-          TEMP_DIR: '{{.TEMP_DIR}}'
-      - task: reset-cluster-internal
-        vars:
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-    env:
-      VAULT: 'kubernetes - {{.CLUSTER}}'
-    vars:
-      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      TALOS_DIR: './main/talos'
-      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
-      TEMP_DIR:
-        sh: mktemp -d
-      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
-    requires:
-      vars:
-        - CLUSTER
-    preconditions:
-      - set -x && test -f ./main/talos/talos.env
-      - set -x && test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      - set -x && which op
-
-  reset-cluster-internal:
-    internal: true
-    dir: '{{.CLUSTER_ROOT}}'
-    dotenv:
-      - '{{.TALOS_SECRETS}}'
-    cmd: set -x && talhelper gencommand reset --config-file '{{.TALOS_CFG}}' --out-dir '{{.TEMP_DIR}}' --extra-flags='--graceful=false' | bash
-    requires:
-      vars:
-        - CLUSTER_ROOT
-        - TALOS_SECRETS
-        - TALOS_CFG
-        - TEMP_DIR
-    preconditions:
-      - set -x && talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
-      - set -x && test -f {{.TEMP_DIR}}/talosconfig
-      - set -x && which talosctl talhelper
-
-  apply-cluster:
-    desc: Apply Talos config across the whole cluster [CLUSTER=required] [MODE=default]
-    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-    cmds:
-      - defer: rm -rf '{{.TEMP_DIR}}'
-      - task: common:kubectl_init
-        vars:
-          CLUSTER: '{{.CLUSTER}}'
-          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
-          TEMP_DIR: '{{.TEMP_DIR}}'
-      - task: apply-cluster-internal
-        vars:
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-          MODE: "{{.MODE}}"
-    env:
-      VAULT: 'kubernetes - {{.CLUSTER}}'
-    vars:
-      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      TALOS_DIR: './main/talos'
-      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
-      TEMP_DIR:
-        sh: mktemp -d
-      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
-      MODE: '{{.MODE | default "auto"}}'
-    requires:
-      vars:
-        - CLUSTER
-    preconditions:
-      - test -f ./main/talos/talos.env
-      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      - which op
-
-  apply-cluster-internal:
-    internal: true
-    cmds:
-      - for: { var: IP_ADDRS }
-        task: apply-node-internal
-        vars:
-          IP: "{{.ITEM}}"
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-          MODE: "{{.MODE}}"
-    vars:
-      IP_ADDRS:
-        sh: talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --output json | jq --join-output '[.nodes[]] | join(" ")'
-    requires:
-      vars:
-        - CLUSTER_ROOT
-        - TALOS_CFG
-        - TALOS_SECRETS
-        - TEMP_DIR
-        - MODE
-    preconditions:
-      - which jq talosctl
-
-  upgrade-cluster:
-    desc: Upgrade Talos across the whole cluster [CLUSTER=main]
-    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-    cmds:
-      - defer: rm -rf '{{.TEMP_DIR}}'
-      - task: common:kubectl_init
-        vars:
-          CLUSTER: '{{.CLUSTER}}'
-          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
-          TEMP_DIR: '{{.TEMP_DIR}}'
-      - task: upgrade-cluster-internal
-        vars:
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-    env:
-      VAULT: 'kubernetes - {{.CLUSTER}}'
-    vars:
-      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      TALOS_DIR: './main/talos'
-      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
-      TEMP_DIR:
-        sh: mktemp -d
-      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
-    requires:
-      vars:
-        - CLUSTER
-    preconditions:
-      - test -f ./main/talos/talos.env
-      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      - which op
-
-  upgrade-cluster-internal:
-    internal: true
-    cmds:
-      - for: { var: IP_ADDRS }
-        task: upgrade-node-internal
-        vars:
-          IP: "{{.ITEM}}"
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-    vars:
-      IP_ADDRS:
-        sh: talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig' --output json | jq --join-output '[.nodes[]] | join(" ")'
-    requires:
-      vars:
-        - CLUSTER_ROOT
-        - TALOS_CFG
-        - TALOS_SECRETS
-        - TEMP_DIR
-    preconditions:
-      - which jq talosctl
-
-  reboot-cluster:
-    desc: Reboot Talos nodes across the whole cluster [CLUSTER=requied]
-    dir: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-    cmds:
-      - defer: rm -rf '{{.TEMP_DIR}}'
-      - task: common:kubectl_init
-        vars:
-          CLUSTER: '{{.CLUSTER}}'
-          CLUSTER_ROOT: '{{.CLUSTER_ROOT}}'
-          TEMP_DIR: '{{.TEMP_DIR}}'
-      - task: reboot-cluster-internal
-        vars:
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-    env:
-      VAULT: 'kubernetes - {{.CLUSTER}}'
-    vars:
-      CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      TALOS_DIR: './main/talos'
-      TALOS_CFG: '{{.TALOS_DIR}}/talconfig.yaml'
-      TEMP_DIR:
-        sh: mktemp -d
-      TALOS_SECRETS: '{{.TEMP_DIR}}/.talos_secrets'
-    requires:
-      vars:
-        - CLUSTER
-    preconditions:
-      - test -f ./main/talos/talos.env
-      - test -d '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
-      - which op
-
-  reboot-cluster-internal:
-    internal: true
-    cmds:
-      - for: { var: IP_ADDRS }
-        task: reboot-node-internal
-        vars:
-          IP: "{{.ITEM}}"
-          CLUSTER_ROOT: "{{.CLUSTER_ROOT}}"
-          TALOS_CFG: "{{.TALOS_CFG}}"
-          TALOS_SECRETS: "{{.TALOS_SECRETS}}"
-          TEMP_DIR: "{{.TEMP_DIR}}"
-    vars:
-      IP_ADDRS:
-        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(" ")'
-    requires:
-      vars:
-        - CLUSTER_ROOT
-        - TALOS_CFG
-        - TALOS_SECRETS
-        - TEMP_DIR
-    preconditions:
-      - which jq talosctl
 
   down:
     internal: true
