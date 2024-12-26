@@ -13,7 +13,6 @@ spec:
   dependsOn:
     - name: openebs
     - name: external-secrets-stores
-    - name: cloudflare-access-config
     - name: kube-prometheus-stack-prometheus-access
     - name: kube-prometheus-stack-alertmanager-access
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/app
