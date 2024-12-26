@@ -13,8 +13,6 @@ spec:
   dependsOn:
     - name: openebs
     - name: external-secrets-stores
-    - name: kube-prometheus-stack-prometheus-access
-    - name: kube-prometheus-stack-alertmanager-access
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/app
   prune: true
   sourceRef:
@@ -42,6 +40,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: cloudflare-access-config
+    - name: kube-prometheus-stack
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/access
   prune: true
   sourceRef:
@@ -70,6 +69,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: cloudflare-access-config
+    - name: kube-prometheus-stack
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/access
   prune: true
   sourceRef:
