@@ -46,12 +46,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
         hosts:
-          - host: "${CLOUDFLARE_ALERTMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+          - "${CLOUDFLARE_ALERTMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
         pathType: Prefix
       alertmanagerSpec:
         alertmanagerConfiguration:
@@ -95,12 +90,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
         hosts:
-          - host: "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+          - "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
         pathType: Prefix
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
