@@ -49,9 +49,7 @@ spec:
         storage:
           volumeClaimTemplate:
             spec:
-              selector:
-                matchLabels:
-                  app.kubernetes.io/name: alertmanager-data
+              storageClassName: openebs-hostpath
               resources:
                 requests:
                   storage: 1Gi
@@ -98,9 +96,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              selector:
-                matchLabels:
-                  app.kubernetes.io/name: prometheus-data
+              storageClassName: openebs-hostpath
               resources:
                 requests:
                   storage: 50Gi
