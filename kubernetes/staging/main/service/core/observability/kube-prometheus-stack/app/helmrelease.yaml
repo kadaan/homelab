@@ -34,12 +34,25 @@ spec:
       enabled: false
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
+      # ingress:
+      #   enabled: true
+      #   ingressClassName: internal
+      #   hosts:
+      #     - "${CLOUDFLARE_ALERTMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+      #   pathType: Prefix
       ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts:
-          - "${CLOUDFLARE_ALERTMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-        pathType: Prefix
+        app:
+          className: external
+          annotations:
+            external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+          hosts:
+            - host: "${CLOUDFLARE_ALERTMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+              paths:
+                - path: /
+                  service:
+                    identifier: app
+                    port: http
+          pathType: Prefix
       alertmanagerSpec:
         alertmanagerConfiguration:
           name: alertmanager
@@ -70,12 +83,25 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
+      # ingress:
+      #   enabled: true
+      #   ingressClassName: internal
+      #   hosts:
+      #     - "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+      #   pathType: Prefix
       ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts:
-          - "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-        pathType: Prefix
+        app:
+          className: external
+          annotations:
+            external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+          hosts:
+            - host: "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+              paths:
+                - path: /
+                  service:
+                    identifier: app
+                    port: http
+          pathType: Prefix
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
