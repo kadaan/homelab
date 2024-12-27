@@ -39,7 +39,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: cloudflare-access-config
+    - name: cloudflare-access-groups
     - name: kube-prometheus-stack
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/access
   prune: true
@@ -68,7 +68,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: cloudflare-access-config
+    - name: cloudflare-access-groups
     - name: kube-prometheus-stack
   path: ./kubernetes/staging/main/service/core/observability/kube-prometheus-stack/access
   prune: true

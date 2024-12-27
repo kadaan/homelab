@@ -14,7 +14,7 @@ spec:
     - name: openebs
     - name: external-secrets-stores
     - name: lldap
-    - name: cloudflare-access-config
+    - name: cloudflare-access-groups
   path: ./kubernetes/staging/main/service/core/authentication/authelia/app
   prune: true
   sourceRef:

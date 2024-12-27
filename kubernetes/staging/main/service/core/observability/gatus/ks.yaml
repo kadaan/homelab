@@ -13,7 +13,7 @@ spec:
   dependsOn:
     - name: openebs
     - name: external-secrets-stores
-    - name: cloudflare-access-config
+    - name: cloudflare-access-groups
   path: ./kubernetes/staging/main/service/core/observability/gatus/app
   prune: true
   sourceRef:
