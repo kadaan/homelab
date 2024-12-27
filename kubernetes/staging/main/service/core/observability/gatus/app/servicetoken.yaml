@@ -8,3 +8,4 @@ spec:
   template:
     metadata:
       name: gatus-service-token
+      namespace: observability
