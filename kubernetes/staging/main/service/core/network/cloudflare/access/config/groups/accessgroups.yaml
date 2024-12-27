@@ -58,8 +58,8 @@ spec:
   include:
     - serviceToken:
       - valueFrom:
-        name: gatus
-        namespace: network
+          name: gatus
+          namespace: network
   require:
     - country:
       - US
