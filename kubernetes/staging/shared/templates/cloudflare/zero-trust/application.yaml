@@ -25,10 +25,10 @@ spec:
             - valueFrom:
                 name: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME:-oidc-user}"
                 namespace: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NETWORK:-network}"
-    - name: "gatus"
-      decision: "non_identity"
+    - name: gatus
+      decision: non_identity
       include:
-        - accessGroups:
+        - serviceToken:
             - valueFrom:
-                name: "gatus"
-                namespace: "network"
+                name: gatus
+                namespace: network
