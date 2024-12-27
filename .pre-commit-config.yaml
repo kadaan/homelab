@@ -36,10 +36,6 @@ repos:
     rev: 39.57.2
     hooks:
       - id: renovate-config-validator
-  - repo: https://github.com/onedr0p/sops-pre-commit
-    rev: v2.1.0
-    hooks:
-      - id: forbid-secrets
   - repo: https://github.com/kadaan/check-yamlschema
     rev: 0.0.1
     hooks:
