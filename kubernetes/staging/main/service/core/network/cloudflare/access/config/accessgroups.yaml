@@ -48,3 +48,17 @@ spec:
   require:
     - country:
       - US
+---
+apiVersion: cloudflare.zelic.io/v1alpha1
+kind: CloudflareAccessGroup
+metadata:
+  name: gatus
+spec:
+  name: Gatus
+  include:
+    - serviceToken:
+        - name: gatus
+          namespace: network
+  require:
+    - country:
+      - US

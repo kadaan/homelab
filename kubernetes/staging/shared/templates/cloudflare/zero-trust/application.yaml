@@ -25,3 +25,6 @@ spec:
             - valueFrom:
                 name: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME:-oidc-user}"
                 namespace: "${CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NETWORK:-network}"
+            - valueFrom:
+                name: "gatus"
+                namespace: "network"
