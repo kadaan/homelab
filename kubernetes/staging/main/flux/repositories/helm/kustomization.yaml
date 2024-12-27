@@ -7,6 +7,7 @@ resources:
   - ./bjw-s.yaml
   - ./cilium.yaml
   - ./coredns.yaml
+  - ./emberstack.yaml
   - ./external-dns.yaml
   - ./external-secrets.yaml
   - ./headlamp.yaml
