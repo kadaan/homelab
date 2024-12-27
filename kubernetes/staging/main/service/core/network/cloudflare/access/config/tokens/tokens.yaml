@@ -4,4 +4,6 @@ kind: CloudflareServiceToken
 metadata:
   name: gatus
 spec:
-  name: gatus-sevice-token
+  name: gatus
+  template:
+    name: gatus-service-token
