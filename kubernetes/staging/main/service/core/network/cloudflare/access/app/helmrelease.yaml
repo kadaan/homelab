@@ -24,8 +24,8 @@ spec:
       retries: 3
   values:
     image:
-      repository: ghcr.io/bojanzelic/cloudflare-zero-trust-operator
-      tag: 0.5.0
+      repository: ghcr.io/kadaan/cloudflare-zero-trust-operator
+      tag: 0.5.4
     secretRef: cloudflare-access-secret
     podAnnotations:
       reloader.stakater.com/auto: "true"
