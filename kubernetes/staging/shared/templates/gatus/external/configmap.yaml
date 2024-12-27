@@ -11,6 +11,9 @@ data:
       - name: "${APP}"
         group: external
         url: "https://${GATUS_SUBDOMAIN:-${APP}}.${CLOUDFLARE_DOMAIN}${GATUS_PATH:-/}"
+        headers:
+          "CF-Access-Client-Id": "$${cloudflareClientId}"
+          "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

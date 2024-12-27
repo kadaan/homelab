@@ -61,6 +61,8 @@ spec:
             envFrom:
               - secretRef:
                   name: gatus-secret
+              - secretRef:
+                  name: gatus-service-token
             probes:
               liveness: &probes
                 enabled: true
