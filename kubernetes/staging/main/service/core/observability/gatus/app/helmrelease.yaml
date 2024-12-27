@@ -58,7 +58,6 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               WEB_PORT: &port 80
-              GATUS_LOG_LEVEL: DEBUG
             envFrom:
               - secretRef:
                   name: gatus-secret
@@ -70,9 +69,9 @@ spec:
                   httpGet:
                     path: /health
                     port: *port
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 9
+                  timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
             securityContext:
