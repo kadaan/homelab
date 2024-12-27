@@ -2,6 +2,6 @@
 apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareServiceToken
 metadata:
-  name: gatus
+  name: gatus-service-token
 spec:
   name: gatus
