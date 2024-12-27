@@ -6,4 +6,5 @@ metadata:
 spec:
   name: gatus
   template:
-    name: gatus-service-token
+    metadata:
+      name: gatus-service-token
