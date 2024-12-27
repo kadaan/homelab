@@ -1,3 +1,4 @@
+---
 apiVersion: cloudflare.zelic.io/v1alpha1
 kind: CloudflareAccessApplication
 metadata:

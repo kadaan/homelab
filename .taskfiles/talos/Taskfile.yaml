@@ -592,7 +592,7 @@ tasks:
     dotenv:
       - '{{.TALOS_SECRETS}}'
     cmds:
-      - talosctl --nodes {{.IP}} reset --talosconfig '{{.TEMP_DIR}}/talosconfig' --graceful=false
+      - talosctl --nodes '{{.IP}}' reset --talosconfig '{{.TEMP_DIR}}/talosconfig' --graceful=false
     requires:
       vars:
         - IP
@@ -601,7 +601,7 @@ tasks:
         - TEMP_DIR
     preconditions:
       - which talosctl
-      - talosctl --nodes {{.IP}} get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
+      - talosctl --nodes '{{.IP}}' get machineconfig --talosconfig '{{.TEMP_DIR}}/talosconfig'
       - talosctl config info --talosconfig '{{.TEMP_DIR}}/talosconfig'
 
   down:
