@@ -63,7 +63,6 @@ spec:
         storageClass: openebs-hostpath
         size: 50Gi
     gateway:
-      enabled: false
       replicas: 0
     backend:
       replicas: 0
@@ -79,13 +78,6 @@ spec:
       enabled: false
     test:
       enabled: false
-    ingress:
-      enabled: true
-      ingressClassName: external
-      annotations:
-        external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
-      hosts:
-        - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
     sidecar:
       image:
         repository: ghcr.io/kiwigrid/k8s-sidecar
