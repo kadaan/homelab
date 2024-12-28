@@ -6,7 +6,7 @@ metadata:
   name: &app emqx-app
   namespace: flux-system
 spec:
-  targetNamespace: actions-runner-system
+  targetNamespace: emqx
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
