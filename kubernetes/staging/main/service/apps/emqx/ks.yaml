@@ -11,8 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: external-secret-stores
     - name: cert-manager
+    - name: external-secrets-stores
     - name: cloudflare-access-groups
   path: ./kubernetes/staging/main/service/apps/emqx/app
   prune: true
