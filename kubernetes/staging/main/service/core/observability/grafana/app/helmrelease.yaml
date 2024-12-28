@@ -38,14 +38,14 @@ spec:
         check_for_updates: false
         check_for_plugin_updates: false
         reporting_enabled: false
-      # auth:
-      #   disable_login_form: true
-      #   disable_signout_menu: true
-      # auth.anonymous:
-      #   enabled: true
-      #   org_id: 1
-      #   org_name: Main Org.
-      #   org_role: Editor
+      auth:
+        disable_login_form: true
+        disable_signout_menu: true
+      auth.anonymous:
+        enabled: true
+        org_id: 1
+        org_name: Main Org.
+        org_role: Editor
       news:
         news_feed_enabled: false
     datasources:
@@ -172,6 +172,7 @@ spec:
           gnetId: 19105
           revision: 6
           datasource: Prometheus
+    sidecar:
       dashboards:
         enabled: true
         searchNamespace: ALL
@@ -192,13 +193,13 @@ spec:
       - pr0ps-trackmap-panel
     serviceMonitor:
       enabled: true
-    # ingress:
-    #   enabled: true
-    #   ingressClassName: external
-    #   annotations:
-    #     external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
-    #   hosts:
-    #     - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+    ingress:
+      enabled: true
+      ingressClassName: external
+      annotations:
+        external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+      hosts:
+        - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
     persistence:
       enabled: false
     testFramework:
