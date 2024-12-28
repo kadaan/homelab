@@ -85,7 +85,7 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
       hosts:
-        - "${CLOUDFLARE_PROMETHEUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+        - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
     sidecar:
       image:
         repository: ghcr.io/kiwigrid/k8s-sidecar
