@@ -10,6 +10,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: openebs
+    - name: cloudflare-access-groups
   path: ./kubernetes/staging/main/service/core/observability/loki/app
   prune: true
   sourceRef:
