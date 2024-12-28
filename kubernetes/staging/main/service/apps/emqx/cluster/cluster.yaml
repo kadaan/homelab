@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/apps.emqx.io/emqx_v2beta1.json
+apiVersion: apps.emqx.io/v2beta1
+kind: EMQX
+metadata:
+  name: emqx
+spec:
+  image: public.ecr.aws/emqx/emqx:5.8.4
+  config:
+    data: |
+      authentication {
+        enable = true
+        backend = "built_in_database"
+        mechanism = "password_based"
+        password_hash_algorithm {
+            name = "bcrypt"
+        }
+        user_id_type = "username"
+        bootstrap_file = "/secrets/init-user.json"
+        bootstrap_type = "plain"
+      }
+      authorization {
+        no_match = "deny"
+        deny_action = "ignore"
+        sources = [{
+          enable = true
+          type = file
+          path = "/secrets/acl.conf"
+        }]
+      }
+  bootstrapAPIKeys:
+    - secretRef:
+        key:
+          secretName: emqx-config-secret
+          secretKey: EMQX_APIKEY_KEY
+        secret:
+          secretName: emqx-config-secret
+          secretKey: EMQX_APIKEY_SECRET
+  coreTemplate:
+    metadata:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    spec:
+      replicas: 1
+      envFrom:
+        - secretRef:
+            name: emqx-secret
+      extraVolumeMounts:
+        - name: emqx-config-secret
+          subPath: init-user.json
+          mountPath: /secrets/init-user.json
+          readOnly: true
+        - name: emqx-config-secret
+          subPath: acl.conf
+          mountPath: /secrets/acl.conf
+          readOnly: true
+      extraVolumes:
+        - name: emqx-config-secret
+          secret:
+            secretName: emqx-config-secret
+  listenersServiceTemplate:
+    metadata:
+      annotations:
+        lbipam.cilium.io/ips: "192.168.2.84"
+    spec:
+      type: LoadBalancer

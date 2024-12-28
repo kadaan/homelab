@@ -1,0 +1,25 @@
+---
+apiVersion: cloudflare.zelic.io/v1alpha1
+kind: CloudflareAccessApplication
+metadata:
+  name: emqx-mqtt
+  annotations:
+    cloudflare.zelic.io/prevent-destroy: "false"
+spec:
+  name: emqx-mqtt
+  domain: "mqtt.${CLOUDFLARE_DOMAIN}"
+  autoRedirectToIdentity: true
+  appLauncherVisible: true
+  type: self_hosted
+  sessionDuration: 24h
+  enableBindingCookie: false
+  httpOnlyCookieAttribute: true
+  logoUrl: "https://www.cloudflare.com/img/logo-web-badges/cf-logo-on-white-bg.svg"
+  policies:
+    - name: Bypass
+      decision: bypass
+      include:
+        - everyone: true
+      require:
+        - country:
+          - US
