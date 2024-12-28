@@ -43,6 +43,6 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: *app
+      APP: capacitor
       CLOUDFLARE_SUBDOMAIN: &subdomain gitops
       GATUS_SUBDOMAIN: *subdomain
