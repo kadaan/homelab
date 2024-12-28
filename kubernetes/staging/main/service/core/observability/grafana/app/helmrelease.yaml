@@ -38,14 +38,14 @@ spec:
         check_for_updates: false
         check_for_plugin_updates: false
         reporting_enabled: false
-      auth:
-        disable_login_form: true
-        disable_signout_menu: true
-      auth.anonymous:
-        enabled: true
-        org_id: 1
-        org_name: Main Org.
-        org_role: Editor
+      # auth:
+      #   disable_login_form: true
+      #   disable_signout_menu: true
+      # auth.anonymous:
+      #   enabled: true
+      #   org_id: 1
+      #   org_name: Main Org.
+      #   org_role: Editor
       news:
         news_feed_enabled: false
     datasources:
