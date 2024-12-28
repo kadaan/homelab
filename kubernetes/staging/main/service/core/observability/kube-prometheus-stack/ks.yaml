@@ -24,8 +24,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      CLOUDFLARE_PROMETHEUS_SUBDOMAIN: prometheus
-      CLOUDFLARE_ALERTMANAGER_SUBDOMAIN: alertmanager
+      CLOUDFLARE_PROMETHEUS_SUBDOMAIN: metrics
+      CLOUDFLARE_ALERTMANAGER_SUBDOMAIN: alerts
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/refs/heads/main/kustomization-kustomize-v1beta2.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
