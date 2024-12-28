@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app emqx-app
+  name: &app emqx
   namespace: flux-system
 spec:
   targetNamespace: emqx
