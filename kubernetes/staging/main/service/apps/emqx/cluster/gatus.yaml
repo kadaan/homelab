@@ -21,7 +21,7 @@ data:
           - type: pushover
       - name: emqx-dashboard
         group: external
-        url: "https://emqx.${CLOUDFLARE_DOMAIN}"
+        url: "https://${CLOUDFLARE_EMQX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
         headers:
           "CF-Access-Client-Id": "$${cloudflareClientId}"
           "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
@@ -29,12 +29,12 @@ data:
         client:
           dns-resolver: tcp://1.1.1.1:53
         conditions:
-          - "[STATUS] == ${GATUS_STATUS:-200}"
+          - "[STATUS] == 200"
         alerts:
           - type: pushover
       - name: emqx-websocket
         group: external
-        url: wss://mqtt.${CLOUDFLARE_DOMAIN}
+        url: wss://${CLOUDFLARE_MQTT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
         interval: 1m
         ui:
           hide-url: true

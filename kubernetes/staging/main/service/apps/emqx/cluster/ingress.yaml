@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: internal
   rules:
-    - host: "emqx.${CLOUDFLARE_DOMAIN}"
+    - host: "${CLOUDFLARE_EMQX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
       http:
         paths:
           - path: /
@@ -24,7 +24,7 @@ metadata:
 spec:
   ingressClassName: internal
   rules:
-    - host: "mqtt.${CLOUDFLARE_DOMAIN}"
+    - host: "${CLOUDFLARE_MQTT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
       http:
         paths:
           - path: /mqtt
