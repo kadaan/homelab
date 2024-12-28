@@ -35,7 +35,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: emqx-app
+    - name: emqx
   path: ./kubernetes/staging/main/service/apps/emqx/cluster
   prune: true
   sourceRef:
