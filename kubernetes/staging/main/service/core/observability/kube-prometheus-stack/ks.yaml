@@ -51,7 +51,7 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: &subdomain prometheus
+      APP: &subdomain metrics
       CLOUDFLARE_SUBDOMAIN: *subdomain
       CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin
       GATUS_SUBDOMAIN: *subdomain
@@ -80,7 +80,7 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: &subdomain alertmanager
+      APP: &subdomain alerts
       CLOUDFLARE_SUBDOMAIN: *subdomain
       CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin
       GATUS_SUBDOMAIN: *subdomain
