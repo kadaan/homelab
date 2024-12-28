@@ -30,7 +30,7 @@ metadata:
   name: &app emqx-cluster
   namespace: flux-system
 spec:
-  targetNamespace: actions-runner-system
+  targetNamespace: emqx
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
