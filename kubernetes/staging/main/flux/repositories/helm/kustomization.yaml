@@ -10,6 +10,7 @@ resources:
   - ./emberstack.yaml
   - ./external-dns.yaml
   - ./external-secrets.yaml
+  - ./grafana.yaml
   - ./headlamp.yaml
   - ./ingress-nginx.yaml
   - ./jetstack.yaml
