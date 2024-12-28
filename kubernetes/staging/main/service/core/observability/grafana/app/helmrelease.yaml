@@ -192,13 +192,13 @@ spec:
       - pr0ps-trackmap-panel
     serviceMonitor:
       enabled: true
-    ingress:
-      enabled: true
-      ingressClassName: external
-      annotations:
-        external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
-      hosts:
-        - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+    # ingress:
+    #   enabled: true
+    #   ingressClassName: external
+    #   annotations:
+    #     external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+    #   hosts:
+    #     - "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
     persistence:
       enabled: false
     testFramework:
