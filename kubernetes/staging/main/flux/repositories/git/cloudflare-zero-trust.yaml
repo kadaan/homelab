@@ -9,4 +9,4 @@ spec:
   interval: 2h
   url: https://github.com/bojanzelic/cloudflare-zero-trust-operator
   ref:
-    tag: 0.5.2
+    commit: ec6362605b75cd91b7f83f54ab6bf9d9230caa37
