@@ -6,6 +6,5 @@ resources:
   - ./application.yaml
   - ./cluster.yaml
   - ./gatus.yaml
-  - ./gatus.yaml
   - ./ingress.yaml
   - ../../../../../shared/templates/cloudflare/zero-trust

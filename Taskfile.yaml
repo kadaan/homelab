@@ -67,11 +67,11 @@ tasks:
       vars:
         - CLUSTER
 
-  flux-local:
+  flux-local-build:
     desc: Command line utility for inspecting a local flux repository
     silent: true
     cmds:
-      - flux-local {{.CLI_ARGS}} --path '{{ .CLUSTER_ROOT }}/main/flux'
+      - flux-local build all {{.CLI_ARGS}} '{{ .CLUSTER_ROOT }}/main/flux'
     vars:
       CLUSTER_ROOT: '{{.KUBERNETES_DIR}}/{{.CLUSTER}}'
     requires:

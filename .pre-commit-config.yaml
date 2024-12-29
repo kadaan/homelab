@@ -49,3 +49,8 @@ repos:
         entry: ./scripts/kubernetes/kubeconform.sh ./kubernetes
         language: script
         pass_filenames: false
+      - id: flux-local
+        name: flux-local-build
+        entry: ./scripts/flux/flux-local-build.sh ./kubernetes
+        language: script
+        pass_filenames: false
