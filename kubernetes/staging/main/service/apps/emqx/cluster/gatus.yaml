@@ -21,7 +21,7 @@ data:
           - type: pushover
       - name: emqx-dashboard
         group: external
-        url: "https://${CLOUDFLARE_EMQX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+        url: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
         headers:
           "CF-Access-Client-Id": "$${cloudflareClientId}"
           "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
