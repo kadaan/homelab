@@ -34,7 +34,7 @@ spec:
       http:
         paths:
           - path: /mqtt
-            pathType: Exact
+            pathType: Prefix
             backend:
               service:
                 name: emqx-listeners
