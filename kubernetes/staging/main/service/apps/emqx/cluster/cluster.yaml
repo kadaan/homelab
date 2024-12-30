@@ -46,11 +46,11 @@ spec:
         - secretRef:
             name: emqx-secret
       extraVolumeMounts:
-        - name: init-user
+        - name: emqx-config
           subPath: init-user.json
           mountPath: /secrets/init-user.json
           readOnly: true
-        - name: acl
+        - name: emqx-config
           subPath: acl.conf
           mountPath: /secrets/acl.conf
           readOnly: true
