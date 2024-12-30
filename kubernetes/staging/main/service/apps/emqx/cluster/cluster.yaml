@@ -63,8 +63,8 @@ spec:
   listenersServiceTemplate:
     metadata:
       annotations:
-        external-dns.alpha.kubernetes.io/hostname: ${CLOUDFLARE_MQTT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
-        # external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+        external-dns.alpha.kubernetes.io/hostname: "${CLOUDFLARE_MQTT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+        external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
         lbipam.cilium.io/ips: "192.168.2.84"
     spec:
       type: LoadBalancer
