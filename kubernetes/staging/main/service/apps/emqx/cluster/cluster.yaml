@@ -65,7 +65,6 @@ spec:
       type: ClusterIP
       ports:
         - name: ws-default
-          nodePort: 31662
           port: 8083
           protocol: TCP
           targetPort: 8083
