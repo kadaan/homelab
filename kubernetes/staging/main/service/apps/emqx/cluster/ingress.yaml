@@ -33,7 +33,7 @@ spec:
     - host: "${CLOUDFLARE_MQTT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
       http:
         paths:
-          - path: /mqtt
+          - path: /
             pathType: Prefix
             backend:
               service:
