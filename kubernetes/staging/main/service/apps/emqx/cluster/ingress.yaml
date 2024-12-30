@@ -16,7 +16,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: emqx
+                name: emqx-dashboard
                 port:
                   number: 18083
 ---
@@ -37,6 +37,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: emqx
+                name: emqx-listeners
                 port:
                   number: 8083
