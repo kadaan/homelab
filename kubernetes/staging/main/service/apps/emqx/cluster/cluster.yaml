@@ -59,5 +59,14 @@ spec:
           secret:
             secretName: emqx-config-secret
   listenersServiceTemplate:
+    metadata:
+      annotations:
+        lbipam.cilium.io/ips: "192.168.2.84"
     spec:
       type: LoadBalancer
+      ports:
+          - name: ws-default
+            nodePort: 31662
+            port: 8083
+            protocol: TCP
+            targetPort: 8083
