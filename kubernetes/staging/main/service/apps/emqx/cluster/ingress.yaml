@@ -27,6 +27,7 @@ metadata:
   name: emqx-websocket
   annotations:
     external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+    nginx.ingress.kubernetes.io/rewrite-target: "/mqtt"
 spec:
   ingressClassName: external
   rules:
