@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./application.yaml
   - ./cluster.yaml
+  - ./externalsecret.yaml
   - ./gatus.yaml
   - ./ingress.yaml
   - ../../../../../shared/templates/cloudflare/zero-trust
