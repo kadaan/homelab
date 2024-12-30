@@ -66,6 +66,7 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: "network/${CLOUDFLARE_DOMAIN/./-}-tls"
+        v: 3
       resources:
         requests:
           cpu: 100m
