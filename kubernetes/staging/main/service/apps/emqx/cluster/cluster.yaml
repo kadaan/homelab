@@ -8,6 +8,7 @@ spec:
   image: public.ecr.aws/emqx/emqx:5.8.4
   config:
     data: |
+      log.console.level = debug
       authentication {
         enable = true
         backend = "built_in_database"
