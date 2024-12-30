@@ -9,6 +9,7 @@ spec:
   config:
     data: |
       log.console.level = debug
+      telemetry.enable = false
       authentication {
         enable = true
         backend = "built_in_database"
@@ -61,7 +62,7 @@ spec:
             secretName: emqx-config-secret
   listenersServiceTemplate:
     spec:
-      type: NodePort
+      type: ClusterIP
       ports:
         - name: ws-default
           nodePort: 31662
