@@ -39,7 +39,7 @@ data:
           topic: "gatus"
           username: "$${EMQX_MQTT_GATUS_USERNAME}"
           password: "$${EMQX_MQTT_GATUS_PASSWORD}"
-        body: "gatus-test-{{ utcEpoch }}"
+        body: "gatus-test: {{ uuidv4 }}"
         interval: 1m
         conditions:
           - "[CONNECTED] == true"

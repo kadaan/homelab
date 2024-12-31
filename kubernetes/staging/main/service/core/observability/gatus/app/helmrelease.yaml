@@ -52,7 +52,7 @@ spec:
           app:
             image:
               repository: ghcr.io/kadaan/gatus
-              tag: v5.15.2@sha256:8491906a9320f09406a8384dc8c6909b027c021ed0948f40c9060b54220b54e7
+              tag: v5.15.3@sha256:268ec6861613a83780576ce305e359b1d856b272e45456db91da51d6ebaad6b3
             env:
               TZ: "${CLUSTER_TZ}"
               GATUS_CONFIG_PATH: /config
