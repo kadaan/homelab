@@ -35,12 +35,13 @@ data:
       - name: emqx-websocket
         group: external
         url: "wss://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:443/mqtt"
-        headers:
-          "Sec-Websocket-Protocol": "mqtt"
-          "Sec-Websocket-Version": "13"
+        dns:
+          topic: "gatus"
+          username: "$${EMQX_MQTT_GATUS_USERNAME}"
+          password: "$${EMQX_MQTT_GATUS_PASSWORD}"
+        body: "gatus-test"
         interval: 1m
         conditions:
           - "[CONNECTED] == true"
-          - "[BODY].result >= 0"
         alerts:
           - type: pushover
