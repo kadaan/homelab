@@ -34,7 +34,10 @@ data:
           - type: pushover
       - name: emqx-websocket
         group: external
-        url: wss://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
+        url: "wss://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+        headers:
+          "Sec-Websocket-Protocol": "mqtt"
+          "Sec-Websocket-Version": "13"
         interval: 1m
         ui:
           hide-url: true
