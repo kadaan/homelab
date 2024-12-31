@@ -28,37 +28,48 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        applyDefaultContainerOptionsToInitContainers: true
+        defaultContainerOptions:
+          image:
+            repository: grafana/oncall
+            tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
+          env:
+            BASE_URL: "http://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+            DJANGO_SETTINGS_MODULE: settings.helm
+            AMIXR_DJANGO_ADMIN_PATH: admin
+            OSS: "True"
+            DETACHED_INTEGRATIONS_SERVER: "False"
+            BROKER_TYPE: rabitmq
+            GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
+            UWSGI_LISTEN: 1024
+            FEATURE_SLACK_INTEGRATION_ENABLED: "False"
+            FEATURE_TELEGRAM_INTEGRATION_ENABLED: "False"
+            CELERY_WORKER_QUEUE: "default,critical,long,webhook,retry,celery,grafana"
+            CELERY_WORKER_CONCURRENCY: 1
+            CELERY_WORKER_MAX_TASKS_PER_CHILD: "100"
+            CELERY_WORKER_SHUTDOWN_INTERVAL: "65m"
+            CELERY_WORKER_BEAT_ENABLED: "True"
+            DATABASE_TYPE: sqlite3
+            DATABASE_NAME: /data/oncall.db
+            RABBITMQ_HOST: rabbitmq.rabbitmq.svc.cluster.local
+            RABBITMQ_PORT: 5672
+            RABBITMQ_PROTOCOLL: amqp
+            FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
+            FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
+          envFrom:
+            - secretRef:
+                name: grafana-oncall-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          resources:
+            requests:
+              cpu: 25m
+            limits:
+              memory: 256M
         containers:
           engine:
-            image: &image
-              repository: grafana/oncall
-              tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
-            env: &env
-              BASE_URL: "http://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-              DJANGO_SETTINGS_MODULE: settings.helm
-              AMIXR_DJANGO_ADMIN_PATH: admin
-              OSS: "True"
-              DETACHED_INTEGRATIONS_SERVER: "False"
-              BROKER_TYPE: rabitmq
-              GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
-              UWSGI_LISTEN: 1024
-              FEATURE_SLACK_INTEGRATION_ENABLED: "False"
-              FEATURE_TELEGRAM_INTEGRATION_ENABLED: "False"
-              CELERY_WORKER_QUEUE: "default,critical,long,webhook,retry,celery,grafana"
-              CELERY_WORKER_CONCURRENCY: 1
-              CELERY_WORKER_MAX_TASKS_PER_CHILD: "100"
-              CELERY_WORKER_SHUTDOWN_INTERVAL: "65m"
-              CELERY_WORKER_BEAT_ENABLED: "True"
-              DATABASE_TYPE: sqlite3
-              DATABASE_NAME: /data/oncall.db
-              RABBITMQ_HOST: rabbitmq.rabbitmq.svc.cluster.local
-              RABBITMQ_PORT: 5672
-              RABBITMQ_PROTOCOLL: amqp
-              FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
-              FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
-            envFrom: &envFrom
-              - secretRef:
-                  name: grafana-oncall-secret
             probes:
               liveness:
                 enabled: true
@@ -82,24 +93,10 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 3
                   failureThreshold: 3
-            securityContext: &securityContext
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-            resources: &resources
-              requests:
-                cpu: 25m
-              limits:
-                memory: 256M
         initContainers:
           wait-for-db:
-            image: *image
-          env: *env
-          envFrom: *envFrom
-          command: ["/bin/sh", "-c"]
-          args: ["until (python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"]
-          securityContext: *securityContext
-          resources: *resources
+            command: ["/bin/sh", "-c"]
+            args: ["until (python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"]
       oncall-db-migrate:
         type: job
         replicas: 1
@@ -111,13 +108,8 @@ spec:
           ttlSecondsAfterFinished: 20
         containers:
           app:
-            image: *image
-            env: *env
-            envFrom: *envFrom
             command: ["/bin/sh", "-c"]
             args: ["python manage.py migrate"]
-            securityContext: *securityContext
-            resources: *resources
     service:
       engine:
         controller: oncall
