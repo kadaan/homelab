@@ -10,7 +10,7 @@ data:
     endpoints:
       - name: redis
         group: infrastructure
-        url: tcp://redis.redis.svc.cluster.local:6379
+        url: tcp://redis-master.redis.svc.cluster.local:6379
         interval: 1m
         ui:
           hide-url: true
