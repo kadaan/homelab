@@ -46,7 +46,6 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: &subdomain emqx
-      CLOUDFLARE_SUBDOMAIN: *subdomain
-      CLOUDFLARE_MQTT_SUBDOMAIN: mqtt
+      APP: emqx
+      CLOUDFLARE_SUBDOMAIN: mqtt
       CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin
