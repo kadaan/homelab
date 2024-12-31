@@ -6,4 +6,6 @@ resources:
   - ./externalsecret.yaml
   - ./gatus.yaml
   - ./helmrelease.yaml
+  - ./ingress.yaml
   - ./pvc.yaml
+  - ../../../../../shared/templates/cloudflare/zero-trust

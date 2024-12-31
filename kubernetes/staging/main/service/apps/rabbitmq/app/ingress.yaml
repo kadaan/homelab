@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.32.0/ingress.json
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rabbitmq-dashboard
+  annotations:
+    external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+spec:
+  ingressClassName: external
+  rules:
+    - host: "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
