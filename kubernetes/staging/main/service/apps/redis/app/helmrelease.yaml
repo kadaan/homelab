@@ -3,16 +3,16 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: emqx
+  name: redis
 spec:
   interval: 30m
   chart:
     spec:
-      chart: emqx-operator
-      version: 2.2.26
+      chart: redis
+      version: "20.6.1@sha256:55659cf4e3247dc3c87dfeca5cdbc8620ede531c7e3f163a9b0a2923fac25967"
       sourceRef:
         kind: HelmRepository
-        name: emqx
+        name: bitnami
         namespace: flux-system
   install:
     remediation:
@@ -23,7 +23,4 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    fullnameOverride: emqx
-    replicaCount: 1
-    image:
-      repository: ghcr.io/emqx/emqx-operator
+    architecture: standalone
