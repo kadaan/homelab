@@ -29,9 +29,15 @@ spec:
       existingSecretPasswordKey: RABBITMQ_PASSWORD
     clustering:
       enabled: false
+    extraConfiguration: |
+      load_definitions = /app/load_definition.json
     extraEnvVars:
       - name: RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS
         value: "true"
+    loadDefinition:
+      enabled: true
+      file: "/app/load_definition.json"
+      existingSecret: "rabbitmq-load-definition-secret"
     persistence:
       enabled: true
       existingClaim: rabbitmq-data
