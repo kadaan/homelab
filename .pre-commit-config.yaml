@@ -46,11 +46,11 @@ repos:
     hooks:
       - id: kubeconform
         name: kubeconform
-        entry: ./scripts/kubernetes/kubeconform.sh ./kubernetes
+        entry: ./scripts/kubernetes/kubeconform.sh
         language: script
         pass_filenames: false
       - id: flux-local
         name: flux-local-build
-        entry: ./scripts/flux/flux-local-build.sh ./kubernetes
+        entry: ./scripts/flux/flux-local-build.sh
         language: script
         pass_filenames: false

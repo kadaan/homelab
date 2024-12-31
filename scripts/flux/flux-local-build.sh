@@ -14,7 +14,7 @@ function validate() {
     )
 
     echo "=== Validating ${cluster_dir}/main/flux ==="
-    if ! flux-local build all "${flux_local_args[@]}"; then
+    if ! flux-local "${flux_local_args[@]}"; then
         exit 1
     fi
 }
@@ -30,10 +30,11 @@ function run() {
         return $?
     fi
 
-    local kubernetes_dir=$1
-    local cluster_name=$2
-
-    [[ -z "${kubernetes_dir}" ]] && echo "Kubernetes location not specified" && exit 1
+    local kubernetes_dir="${1:-}"
+    local cluster_name="${2:-}"
+    if [[ "$kubernetes_dir" == "" ]]; then
+        kubernetes_dir="$(dirname "$(dirname "$root_dir")")/kubernetes"
+    fi
 
     local clusters=()
     if [[ "$cluster_name" != "" ]]; then

@@ -60,10 +60,11 @@ function run() {
         return $?
     fi
 
-    local kubernetes_dir=$1
-    local cluster_name=$2
-
-    [[ -z "${kubernetes_dir}" ]] && echo "Kubernetes location not specified" && exit 1
+    local kubernetes_dir="${1:-}"
+    local cluster_name="${2:-}"
+    if [[ "$kubernetes_dir" == "" ]]; then
+        kubernetes_dir="$(dirname "$(dirname "$root_dir")")/kubernetes"
+    fi
 
     local clusters=()
     if [[ "$cluster_name" != "" ]]; then
