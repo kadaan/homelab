@@ -12,8 +12,22 @@ spec:
     - host: "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
       http:
         paths:
-          - path: "/($|api|static)"
+          - path: "/api"
             pathType: Prefix
+            backend:
+              service:
+                name: emqx-dashboard
+                port:
+                  number: 18083
+          - path: "/static"
+            pathType: Prefix
+            backend:
+              service:
+                name: emqx-dashboard
+                port:
+                  number: 18083
+          - path: "/"
+            pathType: Exact
             backend:
               service:
                 name: emqx-dashboard
