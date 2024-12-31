@@ -24,3 +24,5 @@ spec:
       retries: 3
   values:
     architecture: standalone
+    persistence:
+      existingClaim: redis-data
