@@ -6,4 +6,3 @@ resources:
   - ../common/externalsecret.yaml
   - ../common/pvc.yaml
   - ./helmrelease.yaml
-  - ../../../../../shared/templates/cloudflare/zero-trust

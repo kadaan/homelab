@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: grafana-oncall
+  name: grafana-oncall-db-migration
 spec:
   interval: 30m
   chart:
@@ -23,11 +23,15 @@ spec:
       retries: 3
   values:
     controllers:
-      oncall:
+      migrate:
+        type: job
         replicas: 1
-        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        job:
+          backoffLimit: 15
+          completions: 1
+          ttlSecondsAfterFinished: 20
         containers:
           app:
             image:
@@ -59,29 +63,8 @@ spec:
             envFrom:
               - secretRef:
                   name: grafana-oncall-secret
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health/
-                    port: &port 80
-                  initialDelaySeconds: 0
-                  periodSeconds: 60
-                  timeoutSeconds: 3
-                  failureThreshold: 3
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /ready/
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 3
-                  failureThreshold: 3
+            command: ["/bin/sh", "-c"]
+            args: ["python manage.py migrate"]
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -97,24 +80,6 @@ spec:
         runAsUser: 65534
         runAsGroup: 65534
         seccompProfile: { type: RuntimeDefault }
-    service:
-      app:
-        controller: oncall
-        ports:
-          http:
-            port: *port
-    ingress:
-      app:
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
-        hosts:
-          - host: "${CLOUDFLARE_SUBDOMAIN:-${APP}}.${CLOUDFLARE_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: *port
     persistence:
       database:
         existingClaim: grafana-oncall-data
