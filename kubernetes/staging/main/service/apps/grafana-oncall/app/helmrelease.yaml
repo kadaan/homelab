@@ -97,7 +97,7 @@ spec:
             env: *env
             envFrom: *envFrom
             command: ["/bin/sh", "-c"]
-            args: ["until (python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"]
+            args: ["until (flock -n -x /data/oncall.db python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"]
             securityContext: *securityContext
             resources: *resources
       oncall-db-migrate:
@@ -115,7 +115,7 @@ spec:
             env: *env
             envFrom: *envFrom
             command: ["/bin/sh", "-c"]
-            args: ["python manage.py migrate"]
+            args: ["flock -x /data/oncall.db python manage.py migrate"]
             securityContext: *securityContext
             resources: *resources
     defaultPodOptions:
