@@ -10,6 +10,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: openebs
+    - name: external-secrets-stores
+    - name: cloudflare-access-groups
   path: ./kubernetes/staging/main/service/apps/rabbitmq/app
   prune: true
   sourceRef:

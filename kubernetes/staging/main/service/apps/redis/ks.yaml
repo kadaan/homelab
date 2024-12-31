@@ -10,6 +10,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: openebs
+    - name: external-secrets-stores
   path: ./kubernetes/staging/main/service/apps/redis/app
   prune: true
   sourceRef:
