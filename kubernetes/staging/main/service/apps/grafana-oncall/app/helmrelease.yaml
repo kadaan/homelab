@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     controllers:
-      oncall:
+      engine:
         replicas: 1
         strategy: RollingUpdate
         annotations:
@@ -93,13 +93,7 @@ spec:
                 memory: 256M
           celery:
             image: *image
-            env:
-              <<: *env
-              CELERY_WORKER_QUEUE:  "default,critical,long,slack,telegram,webhook,celery,grafana,retry"
-              CELERY_WORKER_CONCURRENCY: 1
-              CELERY_WORKER_MAX_TASKS_PER_CHILD: 100
-              CELERY_WORKER_BEAT_ENABLED: "True"
-              CELERY_WORKER_SHUTDOWN_INTERVAL: 65m
+            env: *env
             envFrom: *envFrom
             command: ["./celery_with_exporter.sh"]
             probes:
@@ -124,7 +118,7 @@ spec:
         seccompProfile: { type: RuntimeDefault }
     service:
       app:
-        controller: oncall
+        controller: engine
         ports:
           http:
             port: *port
