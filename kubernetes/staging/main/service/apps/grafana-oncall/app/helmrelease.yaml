@@ -30,10 +30,10 @@ spec:
           reloader.stakater.com/auto: "true"
         containers:
           app:
-            image:
+            image: &image
               repository: grafana/oncall
               tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
-            env:
+            env: &env
               BASE_URL: "http://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
               DJANGO_SETTINGS_MODULE: settings.helm
               AMIXR_DJANGO_ADMIN_PATH: admin
@@ -56,7 +56,7 @@ spec:
               RABBITMQ_PROTOCOLL: amqp
               FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
               FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
-            envFrom:
+            envFrom: &envFrom
               - secretRef:
                   name: grafana-oncall-secret
             probes:
@@ -82,15 +82,40 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 3
                   failureThreshold: 3
-            securityContext:
+            securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-            resources:
+            resources: &resources
               requests:
                 cpu: 25m
               limits:
                 memory: 256M
+          celery:
+            image: *image
+            env:
+              <<: *env
+              CELERY_WORKER_QUEUE:  "default,critical,long,slack,telegram,webhook,celery,grafana,retry"
+              CELERY_WORKER_CONCURRENCY: 1
+              CELERY_WORKER_MAX_TASKS_PER_CHILD: 100
+              CELERY_WORKER_BEAT_ENABLED: "True"
+              CELERY_WORKER_SHUTDOWN_INTERVAL: 65m
+            envFrom: *envFrom
+            command: ["./celery_with_exporter.sh"]
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  command: [
+                    "bash",
+                    "-c",
+                    "celery -A engine inspect ping -d celery@$HOSTNAME"
+                  ]
+                  initialDelaySeconds: 30
+                  periodSeconds: 300
+                  timeoutSeconds: 10
+                  failureThreshold: 3
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
