@@ -39,9 +39,6 @@ data:
           "Sec-Websocket-Protocol": "mqtt"
           "Sec-Websocket-Version": "13"
         interval: 1m
-        ui:
-          hide-url: true
-          hide-hostname: true
         conditions:
           - "[CONNECTED] == true"
           - "[BODY].result >= 0"
