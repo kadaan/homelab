@@ -1,0 +1,251 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana-oncall
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      oncall:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          engine:
+            image: &image
+              repository: grafana/oncall
+              tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
+            env: &env
+              BASE_URL: "http://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+              DJANGO_SETTINGS_MODULE: settings.helm
+              AMIXR_DJANGO_ADMIN_PATH: admin
+              OSS: "True"
+              DETACHED_INTEGRATIONS_SERVER: "False"
+              BROKER_TYPE: rabitmq
+              GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
+              UWSGI_LISTEN: 1024
+              FEATURE_SLACK_INTEGRATION_ENABLED: "False"
+              FEATURE_TELEGRAM_INTEGRATION_ENABLED: "False"
+              CELERY_WORKER_QUEUE: "default,critical,long,webhook,retry,celery,grafana"
+              CELERY_WORKER_CONCURRENCY: 1
+              CELERY_WORKER_MAX_TASKS_PER_CHILD: "100"
+              CELERY_WORKER_SHUTDOWN_INTERVAL: "65m"
+              CELERY_WORKER_BEAT_ENABLED: "True"
+              DATABASE_TYPE: sqlite3
+              DATABASE_NAME: /data/oncall.db
+              # REDIS_PROTOCOL: redis
+              # REDIS_HOST: redis-master.redis.svc.cluster.local
+              # REDIS_PORT: 6379
+              # REDIS_DATABASE: 0
+              RABBITMQ_HOST: rabbitmq.rabbitmq.svc.cluster.local
+              RABBITMQ_PORT: 5672
+              RABBITMQ_PROTOCOLL: amqp
+              FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
+              FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
+            envFrom: &envFrom
+              - secretRef:
+                  name: grafana-oncall-secret
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/
+                    port: http
+                  initialDelaySeconds: 0
+                  periodSeconds: 60
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ready/
+                    port: http
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources: &resources
+              requests:
+                cpu: 25m
+              limits:
+                memory: 256M
+        initContainers:
+          wait-for-db:
+            image: *image
+          env: *env
+          envFrom: *envFrom
+          command: [
+            "/bin/sh",
+            "-c",
+            "until (python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"
+          ]
+          securityContext: *securityContext
+          resources: *resources
+      oncall-db-migrate:
+        type: job
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        job:
+          backoffLimit: 15
+          completions: 1
+          ttlSecondsAfterFinished: 20
+        containers:
+          app:
+            image: *image
+            env: *env
+            envFrom: *envFrom
+            command: [
+              "/bin/sh",
+              "-c",
+              "python manage.py migrate"
+            ]
+            securityContext: *securityContext
+            resources: *resources
+    service:
+      engine:
+        controller: oncall
+        ports:
+          http:
+            port: http
+    ingress:
+      engine:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
+        hosts:
+          - host: "${CLOUDFLARE_SUBDOMAIN:-${APP}}.${CLOUDFLARE_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+    persistence:
+      database:
+        existingClaim: grafana-oncall-data
+        globalMounts:
+          - path: /data
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+# apiVersion: helm.toolkit.fluxcd.io/v2
+# kind: HelmRelease
+# metadata:
+#   name: grafana-oncall
+# spec:
+#   interval: 30m
+#   chart:
+#     spec:
+#       chart: oncall
+#       version: 1.13.11
+#       sourceRef:
+#         kind: HelmRepository
+#         name: grafana
+#         namespace: flux-system
+#   install:
+#     remediation:
+#       retries: 3
+#   upgrade:
+#     cleanupOnFail: true
+#     remediation:
+#       strategy: rollback
+#       retries: 3
+#   values:
+#     image:
+#       repository: grafana/oncall
+#       tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
+#     service:
+#       enabled: false
+#     engine:
+#       replicaCount: 1
+#       resources:
+#         limits:
+#           cpu: 100m
+#           memory: 128Mi
+#         requests:
+#           cpu: 100m
+#           memory: 128Mi
+#       extraVolumeMounts:
+
+#     detached_integrations_service:
+#       enabled: false
+#     detached_integrations:
+#       enabled: false
+#     celery:
+#       replicaCount: 1
+#     telegramPolling:
+#       enabled: false
+#     oncall:
+#       secrets:
+#         existingSecret: grafana-oncall-secret
+#         secretKey: GRAFANA_ONCALL_SECRET_KEY
+#         mirageSecretKey: GRAFANA_ONCALL_MIRAGE_SECRET_KEY
+#       slack:
+#         enabled: false
+#       telegram:
+#         enabled: false
+#       smtp:
+#         enabled: false
+#       exporter:
+#         enabled: false
+#     migrate:
+#       enabled: true
+#     ingress:
+#       enabled: false
+#     ingress-nginx:
+#       enabled: false
+#     cert-manager:
+#       enabled: false
+#     database:
+#       type: sqllite
+#     mariadb:
+#       enabled: false
+#     postgresql:
+#       enabled: false
+#     rabbitmq:
+#       enabled: false
+#     externalRabbitmq:
+#       host: rabbitmq.rabbitmq.svc.cluster.local
+#       port: 5672
+#       existingSecret: grafana-oncall-secret
+#       passwordKey: RABBITMQ_PASSWORD
+#       usernameKey: RABBITMQ_USERNAME
+#     grafana:
+#       enabled: false
+#     externalGrafana:
+#       url: "https://monitoring.${CLOUDFLARE_DOMAIN}"
+#     ui:
+#       enabled: false
+#     prometheus:
+#       enabled: false
+#     resources:
+#       requests:
+#         cpu: 10m
+#         memory: 204Mi
+#       limits:
+#         memory: 512Mi
