@@ -23,4 +23,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      CLOUDFLARE_SUBDOMAIN: echo
       CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin

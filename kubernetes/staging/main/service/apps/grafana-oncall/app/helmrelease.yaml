@@ -39,7 +39,7 @@ spec:
               AMIXR_DJANGO_ADMIN_PATH: admin
               OSS: "True"
               DETACHED_INTEGRATIONS_SERVER: "False"
-              BROKER_TYPE: rabitmq
+              BROKER_TYPE: rabbitmq
               GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
               UWSGI_LISTEN: 1024
               FEATURE_SLACK_INTEGRATION_ENABLED: "False"
