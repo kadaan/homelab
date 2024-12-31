@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: redis
-      version: "20.6.1@sha256:55659cf4e3247dc3c87dfeca5cdbc8620ede531c7e3f163a9b0a2923fac25967"
+      version: 20.6.1
       sourceRef:
         kind: HelmRepository
         name: bitnami
