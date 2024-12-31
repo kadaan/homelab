@@ -95,7 +95,7 @@ spec:
           wait-for-db:
             image: *image
             env: *env
-            envfrom: *envFrom
+            envFrom: *envFrom
             command: ["/bin/sh", "-c"]
             args: ["until (python manage.py migrate --check); do echo Waiting for database migrations; sleep 2; done"]
             securityContext: *securityContext
@@ -113,7 +113,7 @@ spec:
           app:
             image: *image
             env: *env
-            envfrom: *envFrom
+            envFrom: *envFrom
             command: ["/bin/sh", "-c"]
             args: ["python manage.py migrate"]
             securityContext: *securityContext
