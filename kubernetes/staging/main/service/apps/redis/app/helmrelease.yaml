@@ -24,6 +24,15 @@ spec:
       retries: 3
   values:
     architecture: standalone
+    auth:
+      enabled: false
     master:
       persistence:
+        enabled: true
         existingClaim: redis-data
+    resources:
+      requests:
+        cpu: 10m
+        memory: 204Mi
+      limits:
+        memory: 512Mi
