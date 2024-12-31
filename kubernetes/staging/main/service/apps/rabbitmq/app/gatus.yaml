@@ -8,6 +8,19 @@ metadata:
 data:
   config.yaml: |
     endpoints:
+      - name: rabbitmq-dashboard
+        group: external
+        url: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+        headers:
+          "CF-Access-Client-Id": "$${cloudflareClientId}"
+          "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
+        interval: 1m
+        client:
+          dns-resolver: tcp://1.1.1.1:53
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: pushover
       - name: rabbitmq
         group: infrastructure
         url: tcp://rabbitmq.rabbitmq.svc.cluster.local:5672
