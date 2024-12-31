@@ -29,7 +29,7 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          engine:
+          app:
             image: &image
               repository: grafana/oncall
               tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
@@ -66,7 +66,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health/
-                    port: http
+                    port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 60
                   timeoutSeconds: 3
@@ -77,7 +77,7 @@ spec:
                 spec:
                   httpGet:
                     path: /ready/
-                    port: http
+                    port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 3
@@ -118,14 +118,20 @@ spec:
             args: ["python manage.py migrate"]
             securityContext: *securityContext
             resources: *resources
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: { type: RuntimeDefault }
     service:
-      engine:
+      app:
         controller: oncall
         ports:
           http:
-            port: http
+            port: *port
     ingress:
-      engine:
+      app:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
@@ -134,8 +140,8 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: engine
-                  port: http
+                  identifier: app
+                  port: *port
     persistence:
       database:
         existingClaim: grafana-oncall-data
