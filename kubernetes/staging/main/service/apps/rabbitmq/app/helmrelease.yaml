@@ -27,7 +27,8 @@ spec:
       username: admin
       existingPasswordSecret: rabbitmq-secret
       existingSecretPasswordKey: RABBITMQ_PASSWORD
-    clustering: false
+    clustering:
+      enabled: false
     extraEnvVars:
       - name: RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS
         value: "true"
