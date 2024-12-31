@@ -134,7 +134,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: engine
                   port: http
     persistence:
       database:
