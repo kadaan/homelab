@@ -35,7 +35,7 @@ data:
       - name: emqx-websocket
         group: external
         url: "wss://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:443/mqtt"
-        dns:
+        mqtt:
           topic: "gatus"
           username: "$${EMQX_MQTT_GATUS_USERNAME}"
           password: "$${EMQX_MQTT_GATUS_PASSWORD}"
