@@ -142,17 +142,6 @@ spec:
         existingClaim: grafana-oncall-data
         globalMounts:
           - path: /data
-      app-temp:
+      tmp:
         enabled: true
         type: emptyDir
-        advancedMounts:
-          engine:
-            app:
-              - path: /tmp
-      celery-temp:
-        enabled: true
-        type: emptyDir
-        advancedMounts:
-          engine:
-            app:
-              - path: /tmp
