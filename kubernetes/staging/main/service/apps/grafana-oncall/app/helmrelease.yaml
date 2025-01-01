@@ -91,7 +91,13 @@ spec:
                 cpu: 25m
               limits:
                 memory: 256M
-          celery:
+      celery:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
             image: *image
             env: *env
             envFrom: *envFrom
@@ -142,6 +148,15 @@ spec:
         existingClaim: grafana-oncall-data
         globalMounts:
           - path: /data
-      tmp:
-        enabled: true
+      engine-tmpfs:
         type: emptyDir
+        advancedMounts:
+          engine:
+            app:
+              - path: /tmp
+      celery-tmpfs:
+        type: emptyDir
+        advancedMounts:
+          celery:
+            app:
+              - path: /tmp
