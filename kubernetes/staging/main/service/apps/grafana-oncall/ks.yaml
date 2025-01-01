@@ -12,8 +12,9 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: cloudflare-access-groups
-    - name: openebs
     - name: external-secrets-stores
+    - name: openebs
+    - name: redis
     # - name: grafana-oncall-db-migrate
   path: ./kubernetes/staging/main/service/apps/grafana-oncall/app
   prune: true
