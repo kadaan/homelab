@@ -34,16 +34,16 @@ spec:
       persistence:
         enabled: true
         existingClaim: redis-data
-        extraVolumes:
-          - name: redis-acl-config
-            secret:
-              secretName: redis-acl-secret
-        extraVolumeMounts:
-          - name: redis-acl-config
-            readOnly: true
-            mountPath: "/etc/redis"
-        configuration: |
-          aclfile /etc/redis/users.acl
+      extraVolumes:
+        - name: redis-acl-config
+          secret:
+            secretName: redis-acl-secret
+      extraVolumeMounts:
+        - name: redis-acl-config
+          readOnly: true
+          mountPath: "/etc/redis"
+      configuration: |
+        aclfile /etc/redis/users.acl
     resources:
       requests:
         cpu: 10m
