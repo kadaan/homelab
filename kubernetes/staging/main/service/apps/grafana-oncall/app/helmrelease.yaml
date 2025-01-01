@@ -39,7 +39,7 @@ spec:
               AMIXR_DJANGO_ADMIN_PATH: admin
               OSS: "True"
               DETACHED_INTEGRATIONS_SERVER: "False"
-              BROKER_TYPE: rabbitmq
+              BROKER_TYPE: redis
               GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
               UWSGI_LISTEN: "1024"
               FEATURE_SLACK_INTEGRATION_ENABLED: "False"
@@ -51,10 +51,10 @@ spec:
               CELERY_WORKER_BEAT_ENABLED: "True"
               DATABASE_TYPE: sqlite3
               DATABASE_NAME: /data/oncall.db
-              RABBITMQ_HOST: rabbitmq.rabbitmq.svc.cluster.local
-              RABBITMQ_PORT: "5672"
-              RABBITMQ_VHOST: oncall
-              RABBITMQ_PROTOCOLL: amqp
+              REDIS_PROTOCOL: redis
+              REDIS_HOST: redis-master.redis.svc.cluster.local
+              REDIS_PORT: 6379
+              REDIS_DATABASE: 0
               FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
               FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
             envFrom: &envFrom
