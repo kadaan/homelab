@@ -45,7 +45,7 @@ spec:
         enabled: true
         org_id: 1
         org_name: Main Org.
-        org_role: Editor
+        org_role: Admin
       news:
         news_feed_enabled: false
     datasources:
