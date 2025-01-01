@@ -29,12 +29,12 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          app:
+          engine:
             image: &image
               repository: grafana/oncall
               tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
             env: &env
-              BASE_URL: "http://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+              BASE_URL: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
               DJANGO_SETTINGS_MODULE: settings.helm
               AMIXR_DJANGO_ADMIN_PATH: admin
               OSS: "True"
@@ -110,7 +110,7 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          app:
+          celery:
             image: *image
             env: *env
             envFrom: *envFrom
@@ -139,13 +139,13 @@ spec:
         runAsGroup: 65534
         seccompProfile: { type: RuntimeDefault }
     service:
-      app:
+      engine:
         controller: engine
         ports:
           http:
             port: *port
     ingress:
-      app:
+      engine:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
@@ -154,7 +154,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: engine
                   port: *port
     persistence:
       database:
@@ -165,11 +165,11 @@ spec:
         type: emptyDir
         advancedMounts:
           engine:
-            app:
+            engine:
               - path: /tmp
       celery-tmpfs:
         type: emptyDir
         advancedMounts:
           celery:
-            app:
+            celery:
               - path: /tmp
