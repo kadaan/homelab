@@ -38,6 +38,8 @@ spec:
                   name: grafana-oncall-config
               - secretRef:
                   name: grafana-oncall-secret
+            command: [ "/bin/sh", "-c" ]
+            args: [ "python manage.py create_sqlite_db && python manage.py migrate && uwsgi --ini uwsgi.ini" ]
             probes:
               liveness:
                 enabled: true
