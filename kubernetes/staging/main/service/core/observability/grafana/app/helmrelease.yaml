@@ -188,6 +188,7 @@ spec:
       - grafana-worldmap-panel
       - natel-discrete-panel
       - pr0ps-trackmap-panel
+      - grafana-oncall-app
     serviceMonitor:
       enabled: true
     ingress:
