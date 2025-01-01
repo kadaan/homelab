@@ -41,7 +41,8 @@ spec:
       extraVolumeMounts:
         - name: redis-acl-config
           readOnly: true
-          mountPath: "/etc/redis"
+          subPath: users.acl
+          mountPath: /etc/redis/users.acl
       configuration: |
         aclfile /etc/redis/users.acl
     resources:
