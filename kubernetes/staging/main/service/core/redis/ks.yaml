@@ -13,7 +13,7 @@ spec:
   dependsOn:
     - name: openebs
     - name: external-secrets-stores
-  path: ./kubernetes/staging/main/service/apps/redis/app
+  path: ./kubernetes/staging/main/service/core/redis/app
   prune: true
   sourceRef:
     kind: GitRepository
