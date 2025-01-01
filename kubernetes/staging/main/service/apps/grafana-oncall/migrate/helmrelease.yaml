@@ -64,7 +64,7 @@ spec:
               - secretRef:
                   name: grafana-oncall-secret
             command: ["/bin/sh", "-c"]
-            args: ["python manage.py migrate"]
+            args: ["if test -f /data/oncall.db; then python manage.py migrate; else python manage.py create_sqlite_db; fi"]
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
