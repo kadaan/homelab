@@ -1,51 +1,51 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app grafana-oncall
-  namespace: flux-system
-spec:
-  targetNamespace: grafana-oncall
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  dependsOn:
-    - name: cloudflare-access-groups
-    - name: grafana-oncall-db-migrate
-  path: ./kubernetes/staging/main/service/apps/grafana-oncall/app
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: home-kubernetes
-  wait: true
-  interval: 30m
-  timeout: 5m
-  postBuild:
-    substitute:
-      APP: *app
-      CLOUDFLARE_SUBDOMAIN: oncall
-      CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app grafana-oncall-db-migrate
-  namespace: flux-system
-spec:
-  targetNamespace: grafana-oncall
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  dependsOn:
-    - name: openebs
-    - name: external-secrets-stores
-  path: ./kubernetes/staging/main/service/apps/grafana-oncall/migrate
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: home-kubernetes
-  wait: true
-  interval: 30m
-  timeout: 5m
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app grafana-oncall
+#   namespace: flux-system
+# spec:
+#   targetNamespace: grafana-oncall
+#   commonMetadata:
+#     labels:
+#       app.kubernetes.io/name: *app
+#   dependsOn:
+#     - name: cloudflare-access-groups
+#     - name: grafana-oncall-db-migrate
+#   path: ./kubernetes/staging/main/service/apps/grafana-oncall/app
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: home-kubernetes
+#   wait: true
+#   interval: 30m
+#   timeout: 5m
+#   postBuild:
+#     substitute:
+#       APP: *app
+#       CLOUDFLARE_SUBDOMAIN: oncall
+#       CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-admin
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app grafana-oncall-db-migrate
+#   namespace: flux-system
+# spec:
+#   targetNamespace: grafana-oncall
+#   commonMetadata:
+#     labels:
+#       app.kubernetes.io/name: *app
+#   dependsOn:
+#     - name: openebs
+#     - name: external-secrets-stores
+#   path: ./kubernetes/staging/main/service/apps/grafana-oncall/migrate
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: home-kubernetes
+#   wait: true
+#   interval: 30m
+#   timeout: 5m
