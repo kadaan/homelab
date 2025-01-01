@@ -101,11 +101,12 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  command: [
-                    "bash",
-                    "-c",
-                    "celery -A engine inspect ping -d celery@$HOSTNAME"
-                  ]
+                  exec:
+                    command: [
+                      "bash",
+                      "-c",
+                      "celery -A engine inspect ping -d celery@$HOSTNAME"
+                    ]
                   initialDelaySeconds: 30
                   periodSeconds: 300
                   timeoutSeconds: 10
