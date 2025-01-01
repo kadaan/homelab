@@ -110,6 +110,8 @@ spec:
                   periodSeconds: 300
                   timeoutSeconds: 10
                   failureThreshold: 3
+            securityContext: *securityContext
+            resources: *resources
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
