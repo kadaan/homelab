@@ -29,7 +29,7 @@ spec:
       sentinel: false
       existingSecret: redis-secret
       existingSecretPasswordKey: redis-password
-      usePasswordFiles: false
+      usePasswordFiles: true
     master:
       persistence:
         enabled: true
