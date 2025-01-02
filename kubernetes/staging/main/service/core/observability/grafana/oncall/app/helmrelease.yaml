@@ -57,6 +57,7 @@ spec:
               REDIS_DATABASE: 0
               FEATURE_EMAIL_INTEGRATION_ENABLED: "False"
               FEATURE_PROMETHEUS_EXPORTER_ENABLED: "False"
+              GRAFANA_CLOUD_ONCALL_API_URL: "https://oncall-prod-us-central-0.grafana.net/oncall"
             envFrom: &envFrom
               - secretRef:
                   name: grafana-oncall-secret
