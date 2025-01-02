@@ -2,8 +2,52 @@
 
 set -e
 
-echo "Calling: curl -v \"https://${GRAFANA_ADMIN_USERNAME:?}:***********${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/api/plugins/grafana-oncall-app/settings\" -H \"Content-Type: application/json\" -d \"{\\\"enabled\\\":true, \\\"jsonData\\\":{\\\"stackId\\\":5, \\\"orgId\\\":100, \\\"onCallApiUrl\\\":\\\"http://${GRAFANA_ONCALL_HOST:?}:${GRAFANA_ONCALL_PORT:?}/\\\", \\\"grafanaUrl\\\":\\\"https://${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/\\\"}}\""
-curl -v "https://${GRAFANA_ADMIN_USERNAME:?}:${GRAFANA_ADMIN_PASSWORD:?}@${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/api/plugins/grafana-oncall-app/settings" -H "Content-Type: application/json" -d "{\"enabled\":true, \"jsonData\":{\"stackId\":5, \"orgId\":100, \"onCallApiUrl\":\"http://${GRAFANA_ONCALL_HOST:?}:${GRAFANA_ONCALL_PORT:?}/\", \"grafanaUrl\":\"https://${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/\"}}"
+if [ -z "${GRAFANA_ADMIN_USERNAME}" ]; then
+    echo "Environment variable 'GRAFANA_ADMIN_USERNAME' is not set"
+    exit 1
+fi
 
-echo "Calling: curl -v -X POST \"https://${GRAFANA_ADMIN_USERNAME:?}::?}:***********@${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/api/plugins/grafana-oncall-app/resources/plugin/install\""
-curl -v -X POST "https://${GRAFANA_ADMIN_USERNAME:?}:${GRAFANA_ADMIN_PASSWORD:?}@${GRAFANA_HOST:?}:${GRAFANA_PORT:?}/api/plugins/grafana-oncall-app/resources/plugin/install"
+if [ -z "${GRAFANA_ADMIN_PASSWORD}" ]; then
+    echo "Environment variable 'GRAFANA_ADMIN_PASSWORD' is not set"
+    exit 1
+fi
+
+if [ -z "${GRAFANA_HOST}" ]; then
+    echo "Environment variable 'GRAFANA_HOST' is not set"
+    exit 1
+fi
+
+if [ -z "${GRAFANA_PORT}" ]; then
+    echo "Environment variable 'GRAFANA_PORT' is not set"
+    exit 1
+fi
+
+if [ -z "${GRAFANA_ONCALL_HOST}" ]; then
+    echo "Environment variable 'GRAFANA_ONCALL_HOST' is not set"
+    exit 1
+fi
+
+if [ -z "${GRAFANA_ONCALL_PORT}" ]; then
+    echo "Environment variable 'GRAFANA_ONCALL_PORT' is not set"
+    exit 1
+fi
+
+url_base="http://${GRAFANA_HOST}:${GRAFANA_PORT}/api/plugins/grafana-oncall-app"
+url="${url_base}/settings"
+data="{\"enabled\":true, \"jsonData\":{\"stackId\":5, \"orgId\":100, \"onCallApiUrl\":\"http://${GRAFANA_ONCALL_HOST}:${GRAFANA_ONCALL_PORT}/\", \"grafanaUrl\":\"https://${GRAFANA_HOST}:${GRAFANA_PORT}/\"}}"
+echo "Configuring Grafana Oncall app settings..."
+echo "==> curl -v --user \"${GRAFANA_ADMIN_USERNAME}:***********\" \"$url\" --json \"$data\""
+if ! curl -v --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" "$url" --json "$data"; then
+    echo "Failed to configure Grafana Oncall app settings"
+    exit 1
+fi
+
+url="${url_base}/resources/plugin/install"
+echo "Installing Grafana Oncall app..."
+echo "==> curl -v --user \"${GRAFANA_ADMIN_USERNAME}:***********\" -X POST \"$url\""
+if ! curl -v --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" -X POST "$url"; then
+    echo "Failed to install Grafana Oncall app"
+    exit 1
+fi
+
+exit 0
