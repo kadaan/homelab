@@ -2,6 +2,8 @@
 
 set -e
 
+printenv
+
 if [ -z "${GRAFANA_ADMIN_USERNAME}" ]; then
     echo "Environment variable 'GRAFANA_ADMIN_USERNAME' is not set"
     exit 1
