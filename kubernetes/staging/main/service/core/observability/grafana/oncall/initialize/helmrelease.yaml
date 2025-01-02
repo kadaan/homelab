@@ -40,7 +40,7 @@ spec:
             command: [ "/scripts/initialize.sh" ]
             env:
               GRAFANA_HOST: grafana.observability.svc.cluster.local
-              GRAFANA_PORT: 3000
+              GRAFANA_PORT: 80
               GRAFANA_ONCALL_HOST: grafana-oncall.observability.svc.cluster.local
               GRAFANA_ONCALL_PORT: 8080
             envFrom:

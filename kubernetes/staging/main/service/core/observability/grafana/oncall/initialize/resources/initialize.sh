@@ -36,16 +36,16 @@ url_base="http://${GRAFANA_HOST}:${GRAFANA_PORT}/api/plugins/grafana-oncall-app"
 url="${url_base}/settings"
 data="{\"enabled\":true, \"jsonData\":{\"stackId\":5, \"orgId\":100, \"onCallApiUrl\":\"http://${GRAFANA_ONCALL_HOST}:${GRAFANA_ONCALL_PORT}/\", \"grafanaUrl\":\"http://${GRAFANA_HOST}:${GRAFANA_PORT}/\"}}"
 echo "Configuring Grafana Oncall app settings..."
-echo "==> curl -v --user \"${GRAFANA_ADMIN_USERNAME}:***********\" \"${url}\" --json \"${data}\""
-if ! curl -v --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" "${url}" --json "${data}"; then
+echo "==> curl -sS --user \"${GRAFANA_ADMIN_USERNAME}:***********\" \"${url}\" --json \"${data}\""
+if ! curl -sS --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" "${url}" --json "${data}"; then
     echo "Failed to configure Grafana Oncall app settings"
     exit 1
 fi
 
 url="${url_base}/resources/plugin/install"
 echo "Installing Grafana Oncall app..."
-echo "==> curl -v --user \"${GRAFANA_ADMIN_USERNAME}:***********\" -X POST \"${url}\""
-if ! curl -v --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" -X POST "${url}"; then
+echo "==> curl -sS --user \"${GRAFANA_ADMIN_USERNAME}:***********\" -X POST \"${url}\""
+if ! curl -sS --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" -X POST "${url}"; then
     echo "Failed to install Grafana Oncall app"
     exit 1
 fi
