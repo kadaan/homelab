@@ -41,13 +41,22 @@ if ! curl -sS --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" "${ur
     echo "Failed to configure Grafana Oncall app settings"
     exit 1
 fi
+echo ""
+echo ""
 
 url="${url_base}/resources/plugin/install"
 echo "Installing Grafana Oncall app..."
 echo "==> curl -sS --user \"${GRAFANA_ADMIN_USERNAME}:***********\" -X POST \"${url}\""
-if ! curl -sS --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" -X POST "${url}"; then
+result=""
+if ! result="$(curl -sS --user "${GRAFANA_ADMIN_USERNAME}:${GRAFANA_ADMIN_PASSWORD}" -X POST "${url}")"; then
     echo "Failed to install Grafana Oncall app"
     exit 1
 fi
-
+case "$result" in
+  *onCallError*)
+    echo "Failed to install Grafana Oncall app"
+    echo "  $result"
+    exit 1
+  ;;
+esac
 exit 0
