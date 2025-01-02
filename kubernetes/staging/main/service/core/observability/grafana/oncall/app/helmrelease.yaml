@@ -34,7 +34,7 @@ spec:
               repository: grafana/oncall
               tag: v1.13.11@sha256:159b6b836fed0c9b61ff4014ad65c05b56500f31283c42de97dbe58679d33391
             env: &env
-              BASE_URL: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+              BASE_URL: "http://grafana-oncall.observability.svc.cluster.local:8080"
               DJANGO_SETTINGS_MODULE: settings.helm
               AMIXR_DJANGO_ADMIN_PATH: admin
               OSS: "True"
