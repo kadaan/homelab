@@ -99,11 +99,11 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-            resources: &resources
+            resources:
               requests:
-                cpu: 25m
+                cpu: 500m
               limits:
-                memory: 512Mi
+                memory: 768Mi
       celery:
         replicas: 1
         strategy: RollingUpdate
@@ -131,7 +131,11 @@ spec:
                   timeoutSeconds: 10
                   failureThreshold: 3
             securityContext: *securityContext
-            resources: *resources
+            resources:
+              requests:
+                cpu: 300m
+              limits:
+                memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
