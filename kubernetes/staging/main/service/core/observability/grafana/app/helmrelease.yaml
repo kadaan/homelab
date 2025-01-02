@@ -28,23 +28,23 @@ spec:
     admin:
       existingSecret: grafana-admin-secret
     env:
-      GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
+      # GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
       GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
       GF_EXPLORE_ENABLED: true
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
       GF_SECURITY_ANGULAR_SUPPORT_ENABLED: true
       GF_SERVER_ROOT_URL: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
-      ONCALL_API_URL: "http://grafana-oncall.observability.svc.cluster.local:8080"
+      # ONCALL_API_URL: "http://grafana-oncall.observability.svc.cluster.local:8080"
     grafana.ini:
       analytics:
         check_for_updates: false
         check_for_plugin_updates: false
         reporting_enabled: false
       auth:
-        disable_login_form: false
-        disable_signout_menu: false
+        disable_login_form: true
+        disable_signout_menu: true
       auth.anonymous:
-        enabled: false
+        enabled: true
         org_id: 1
         org_name: Main Org.
         org_role: Admin
@@ -193,7 +193,7 @@ spec:
       - grafana-worldmap-panel
       - natel-discrete-panel
       - pr0ps-trackmap-panel
-      - grafana-oncall-app
+      # - grafana-oncall-app
     serviceMonitor:
       enabled: true
     ingress:
