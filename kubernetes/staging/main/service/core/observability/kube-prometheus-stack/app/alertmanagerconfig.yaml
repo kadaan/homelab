@@ -27,10 +27,10 @@ spec:
           - name: alertname
             value: Watchdog
             matchType: "="
-      - receiver: pushover
+      - receiver: pushover-gatus
         matchers:
-          - name: severity
-            value: critical
+          - name: source
+            value: gatus
             matchType: "="
   inhibitRules:
     - equal:
@@ -54,7 +54,7 @@ spec:
     - name: pushover
       pushoverConfigs:
         - html: true
-          message: |-
+          message: &message |-
             {{- range .Alerts }}
               {{- if ne .Annotations.description "" }}
                 {{ .Annotations.description }}
@@ -72,18 +72,43 @@ spec:
                   {{- end }}
                 </small>
               {{- end }}
+              {{- if ne .Annotations.gatus_url "" }}
+                <a href="{{ .Annotations.gatus_url }}">View in Gatus</a>
+              {{- end }}
+              {{- if ne .Annotations.grafana_url "" }}
+                <a href="{{ .Annotations.grafana_url }}">View in Grafana</a>
+              {{- end }}
+              {{- if ne .Annotations.prometheus_url "" }}
+                <a href="{{ .Annotations.prometheus_url }}">View in Prometheus</a>
+              {{- end }}
             {{- end }}
-          priority: |-
-            {{ if eq .Status "firing" }}2{{ else }}0{{ end }}
+          priority: &priority |-
+            {{ if eq .Status "firing" }}{{ if eq .Severity "critical" }}2{{ else }}1{{ end }}{{ else }}0{{ end }}
           sendResolved: true
           sound: gamelan
-          title: >-
+          title: &title >-
             [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]
             {{ .CommonLabels.alertname }}
           ttl: 3600s
           token:
             name: *secret
             key: ALERTMANAGER_PUSHOVER_TOKEN
+          userKey:
+            name: *secret
+            key: PUSHOVER_USER_KEY
+          urlTitle: View in Alertmanager
+    - name: pushover-gatus
+      pushoverConfigs:
+        - html: true
+          message: *message
+          priority: *priority
+          sendResolved: true
+          sound: gamelan
+          title: *title
+          ttl: 3600s
+          token:
+            name: *secret
+            key: GATUS_PUSHOVER_TOKEN
           userKey:
             name: *secret
             key: PUSHOVER_USER_KEY
