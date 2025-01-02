@@ -10,7 +10,7 @@ spec:
       rules:
         - alert: EndpointUnreachable
           expr: |
-            sum(rate(gatus_results_total{success="true"}[30s])) by (namespace, name, type) / sum(rate(gatus_results_total[30s])) by (namespace, name, type) < 1
+            sum(rate(gatus_results_total{success="false"}[30s])) by (namespace, name, type) / sum(rate(gatus_results_total[30s])) by (namespace, name, type) > 0
           for: 1m
           labels:
             source: gatus
