@@ -83,7 +83,7 @@ spec:
               {{- end }}
             {{- end }}
           priority: &priority |-
-            {{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity }}{{ if eq .CommonLabels.severity "critical" }}2{{ else }}1{{ end }}{{ else }}1{{ end }}{{ else }}0{{ end }}
+            {{ if eq .Status "firing" }}{{ if .CommonLabels.severity }}{{ if eq .CommonLabels.severity "critical" }}2{{ else }}1{{ end }}{{ else }}1{{ end }}{{ else }}0{{ end }}
           sendResolved: true
           sound: gamelan
           title: &title >-
