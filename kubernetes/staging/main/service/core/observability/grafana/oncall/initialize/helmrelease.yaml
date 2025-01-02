@@ -41,7 +41,7 @@ spec:
             env:
               GRAFANA_HOST: grafana.observability.svc.cluster.local
               GRAFANA_PORT: 3000
-              GRAFANA_ONCALL_HOST: grafana-oncall-engine.observability.svc.cluster.local
+              GRAFANA_ONCALL_HOST: grafana-oncall.observability.svc.cluster.local
               GRAFANA_ONCALL_PORT: 8080
             envFrom:
               - secretRef:
@@ -62,9 +62,10 @@ spec:
         runAsGroup: 65534
         seccompProfile: { type: RuntimeDefault }
     persistence:
-      initialize:
+      scripts:
         type: configMap
         name: grafana-oncall-initialize
+        defaultMode: 0775
         globalMounts:
           - path: /scripts
             readOnly: true
