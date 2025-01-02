@@ -14,21 +14,17 @@ data:
         headers:
           "CF-Access-Client-Id": "$${cloudflareClientId}"
           "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
-        interval: 1m
+        interval: 15s
         client:
           dns-resolver: tcp://1.1.1.1:53
         conditions:
           - "[STATUS] == 200"
-        alerts:
-          - type: pushover
       - name: rabbitmq
         group: infrastructure
         url: tcp://rabbitmq.rabbitmq.svc.cluster.local:5672
-        interval: 1m
+        interval: 15s
         ui:
           hide-url: true
           hide-hostname: true
         conditions:
           - "[CONNECTED] == true"
-        alerts:
-          - type: pushover

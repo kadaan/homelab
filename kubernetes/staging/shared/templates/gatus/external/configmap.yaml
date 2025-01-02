@@ -14,10 +14,8 @@ data:
         headers:
           "CF-Access-Client-Id": "$${cloudflareClientId}"
           "CF-Access-Client-Secret": "$${cloudflareSecretKey}"
-        interval: 1m
+        interval: 15s
         client:
           dns-resolver: tcp://1.1.1.1:53
         conditions:
           - "[STATUS] == ${GATUS_STATUS:-200}"
-        alerts:
-          - type: pushover

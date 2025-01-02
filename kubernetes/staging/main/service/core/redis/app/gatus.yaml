@@ -11,11 +11,9 @@ data:
       - name: redis
         group: infrastructure
         url: tcp://redis-master.redis.svc.cluster.local:6379
-        interval: 1m
+        interval: 15s
         ui:
           hide-url: true
           hide-hostname: true
         conditions:
           - "[CONNECTED] == true"
-        alerts:
-          - type: pushover

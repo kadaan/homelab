@@ -11,11 +11,9 @@ data:
       - name: grafana-oncall
         group: infrastructure
         url: tcp://grafana-oncall.observability.svc.cluster.local:8080
-        interval: 1m
+        interval: 15s
         ui:
           hide-url: true
           hide-hostname: true
         conditions:
           - "[CONNECTED] == true"
-        alerts:
-          - type: pushover
