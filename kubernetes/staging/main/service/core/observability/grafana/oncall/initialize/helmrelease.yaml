@@ -1,0 +1,70 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana-oncall-initialize
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      migrate:
+        type: job
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        job:
+          backoffLimit: 15
+          completions: 1
+          ttlSecondsAfterFinished: 20
+        containers:
+          app:
+            image:
+              repository: alpine/curl
+              tag: 8.10.0@sha256:91168ebe05143005b883244e753f46a1972fa27cd7d4478258185cbefe3e4f1d
+            command: [ "/scripts/initialize.sh" ]
+            env:
+              GRAFANA_HOST: grafana.observability.svc.cluster.local
+              GRAFANA_PORT: 3000
+              GRAFANA_ONCALL_HOST: grafana-oncall-engine.observability.svc.cluster.local
+              GRAFANA_ONCALL_PORT: 8080
+            envFrom:
+              - secretRef:
+                  name: grafana-oncall-initialize-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 25m
+              limits:
+                memory: 256M
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      initialize:
+        type: configMap
+        name: grafana-oncall-initialize
+        globalMounts:
+          - path: /scripts
+            readOnly: true
