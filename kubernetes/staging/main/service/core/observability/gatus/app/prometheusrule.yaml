@@ -10,14 +10,14 @@ spec:
       rules:
         - alert: EndpointUnreachable
           expr: |
-            sum(rate(gatus_results_total{success="false"}[30s])) by (namespace, name, type) / sum(rate(gatus_results_total[30s])) by (namespace, name, type) > 0
+            sum(rate(gatus_results_total{success="false"}[30s])) by (group, name, type) / sum(rate(gatus_results_total[30s])) by (group, name, type) > 0
           for: 1m
           labels:
             source: gatus
             severity: critical
           annotations:
             description:
-              "The {{ $labels.namespace }} {{ $labels.type }} endpoint {{ $labels.name }} has been unreachable
+              "The {{ $labels.group }} {{ $labels.type }} endpoint {{ $labels.name }} has been unreachable
               for more than one minute."
-            summary: "{{ $labels.namespace }}.{{ $labels.name }}.{{ $labels.type }} is unreachable."
-            gatus_url: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}/endpoints/{{$labels.namespace}}_{{$labels.name}}"
+            summary: "{{ $labels.group }}.{{ $labels.name }}.{{ $labels.type }} is unreachable."
+            gatus_url: "https://${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}/endpoints/{{$labels.group}}_{{$labels.name}}"
