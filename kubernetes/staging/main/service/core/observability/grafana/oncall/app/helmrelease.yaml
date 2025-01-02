@@ -40,7 +40,7 @@ spec:
               OSS: "True"
               DETACHED_INTEGRATIONS_SERVER: "False"
               BROKER_TYPE: redis
-              GRAFANA_API_URL: "https://monitoring.${CLOUDFLARE_DOMAIN}"
+              GRAFANA_API_URL: "http://grafana.observability.svc.cluster.local"
               UWSGI_LISTEN: "1024"
               FEATURE_SLACK_INTEGRATION_ENABLED: "False"
               FEATURE_TELEGRAM_INTEGRATION_ENABLED: "False"
