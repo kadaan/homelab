@@ -69,7 +69,6 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: grafana
-    - name: grafana-oncall
   path: ./kubernetes/staging/main/service/core/observability/grafana/oncall/initialize
   prune: true
   sourceRef:
