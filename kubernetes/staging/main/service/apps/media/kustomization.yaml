@@ -6,3 +6,4 @@ resources:
   - ./namespace.yaml
   - ./pvc.yaml
   - ./filebrowser/ks.yaml
+  - ./kavita/ks.yaml

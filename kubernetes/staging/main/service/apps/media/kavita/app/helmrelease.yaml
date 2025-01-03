@@ -24,20 +24,16 @@ spec:
       retries: 3
   values:
     controllers:
-      filebrowser:
+      kavita:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
-              repository: docker.io/filebrowser/filebrowser
-              tag: v2.31.2@sha256:a4da9ca8364b0a1fc5dd36f7add92582bf673c0ae0bda8dd9bd13062c41d1715
+              repository: ghcr.io/kareadita/kavita
+              tag: 0.8.4@sha256:07393ed7d6860e7312c0197b8c1ebcd4d53c52b7cabd542db08613410ff22c69
             env:
               TZ: "${CLUSTER_TZ}"
-              FB_DATABASE: /config/filebrowser.db
-              FB_ROOT: /media
-              FB_LOG: stdout
-              FB_NOAUTH: true
             probes:
               liveness: &probes
                 enabled: true
@@ -45,7 +41,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: &port 80
+                    port: &port 5000
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -59,7 +55,7 @@ spec:
               requests:
                 cpu: 50m
               limits:
-                memory: 512mi
+                memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -70,7 +66,7 @@ spec:
         seccompProfile: { type: RuntimeDefault }
     service:
       app:
-        controller: filebrowser
+        controller: kavita
         ports:
           http:
             port: *port
@@ -88,6 +84,12 @@ spec:
                   port: http
     persistence:
       config:
-        existingClaim: filebrowser-config
+        existingClaim: kavita-config
+        globalMounts:
+          - path: /kavita/config
       media:
         existingClaim: media-data
+        globalMounts:
+          - path: /books
+            readOnly: true
+            subPath: books
