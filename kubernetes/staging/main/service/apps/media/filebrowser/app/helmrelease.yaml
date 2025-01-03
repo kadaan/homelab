@@ -80,7 +80,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${CLOUDFLARE_DOMAIN}"
         hosts:
-          - host: "${CLOUDFLARE_SUBDOMIAN}.${CLOUDFLARE_DOMAIN}"
+          - host: "${CLOUDFLARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
             paths:
               - path: /
                 service:
