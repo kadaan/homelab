@@ -25,4 +25,3 @@ spec:
     substitute:
       APP: *app
       CLOUDFLARE_SUBDOMAIN: files
-      CLOUDFLARE_ZEROTRUST_ACCESS_GROUP_NAME: oidc-user
