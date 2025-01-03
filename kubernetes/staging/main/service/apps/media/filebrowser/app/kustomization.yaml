@@ -5,4 +5,5 @@ kind: Kustomization
 resources:
   - ./pvc.yaml
   - ./helmrelease.yaml
+  - ../../../../../../shared/templates/cloudflare/zero-trust
   - ../../../../../../shared/templates/gatus/external

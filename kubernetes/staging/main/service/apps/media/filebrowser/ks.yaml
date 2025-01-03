@@ -24,4 +24,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      CLOUDFLARE_SUBDOMAIN: files
+      CLOUDFLARE_SUBDOMAIN: &subdomain files
+      GATUS_SUBDOMAIN: *subdomain
